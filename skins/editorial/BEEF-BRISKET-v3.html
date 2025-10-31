@@ -7,12 +7,10 @@
 <title>Beef Brisket Quantity Calculator</title>
 <meta name="description" content="Estimate how much beef brisket to buy per person. Enter guests and settings to get raw pounds, with optional pricing.">
 
-<!-- Compat meta tags -->
 <meta name="dm-category" content="meat">
 <meta name="dm-food" content="beef brisket">
 <meta name="dm-portion-spec" content="v1.8">
 
-<!-- Skin + Engine (repo-relative, exact) -->
 <meta name="dm-skin" content="editorial-v1.2">
 <link rel="stylesheet" href="./editorial-v1.2.css">
 <script defer src="../../engine/engine.v2.js"></script>
@@ -22,36 +20,23 @@
 <body class="dm-editorial">
 <main id="calculator" class="dm-grid">
 
-  <!-- Header -->
   <section class="card header" role="region" aria-label="Header">
     <h1>Beef Brisket Quantity Calculator</h1>
     <p class="lede">Enter your guest mix and preferences. We will estimate raw pounds of beef brisket to buy.</p>
+    <img class="hero" src="./img/beef-brisket-slug-hero.jpg" alt="Sliced beef brisket on a board">
   </section>
 
-  <!-- Inputs -->
   <section class="card inputs" role="region" aria-label="Inputs">
-
-    <!-- Step 1: Guests -->
     <div class="step">
       <div class="step-label">Step 1</div>
       <h2 class="step-title">How many people are you serving?</h2>
       <div class="controls two-col">
-        <label class="field">
-          <span>Adults</span>
-          <input id="dmAdults" type="number" inputmode="numeric" min="0" step="1" value="10" data-selectall="true">
-        </label>
-        <label class="field">
-          <span>Teens</span>
-          <input id="dmTeens" type="number" inputmode="numeric" min="0" step="1" value="0" data-selectall="true">
-        </label>
-        <label class="field">
-          <span>Children</span>
-          <input id="dmChildren" type="number" inputmode="numeric" min="0" step="1" value="0" data-selectall="true">
-        </label>
+        <label class="field"><span>Adults</span><input id="dmAdults" type="number" inputmode="numeric" min="0" step="1" value="10" data-selectall="true"></label>
+        <label class="field"><span>Teens</span><input id="dmTeens" type="number" inputmode="numeric" min="0" step="1" value="0" data-selectall="true"></label>
+        <label class="field"><span>Children</span><input id="dmChildren" type="number" inputmode="numeric" min="0" step="1" value="0" data-selectall="true"></label>
       </div>
     </div>
 
-    <!-- Step 2: Appetite -->
     <div class="step">
       <div class="step-label">Step 2</div>
       <h2 class="step-title">How generous would you like the portions to be?</h2>
@@ -68,9 +53,8 @@
       </div>
     </div>
 
-    <!-- Event Length: HIDDEN for Meat & Seafood (fixed 1.00) -->
+    <!-- Event Length hidden (fixed 1.00) -->
 
-    <!-- Step 3: Role / Meal-Share -->
     <div class="step">
       <div class="step-label">Step 3</div>
       <h2 class="step-title">Will this be the only meat or seafood you are serving?</h2>
@@ -87,7 +71,6 @@
       </div>
     </div>
 
-    <!-- Step 4: Leftovers -->
     <div class="step">
       <div class="step-label">Step 4</div>
       <h2 class="step-title">Would you like leftovers?</h2>
@@ -102,25 +85,14 @@
         </label>
       </div>
     </div>
-
   </section>
 
-  <!-- Pricing (optional) -->
   <section class="card pricing" role="region" aria-label="Pricing">
     <h2 class="section-title">Pricing (optional)</h2>
     <div class="controls two-col">
-      <label class="field">
-        <span>Unit price (USD per lb)</span>
-        <input id="dmPricePerLb" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g., 6.49">
-      </label>
-      <label class="field">
-        <span>Sales tax (%)</span>
-        <input id="dmTaxPct" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g., 7.5">
-      </label>
-      <label class="field">
-        <span>Extra fees (USD)</span>
-        <input id="dmFees" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g., 8.00">
-      </label>
+      <label class="field"><span>Unit price (USD per lb)</span><input id="dmPricePerLb" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g., 6.49"></label>
+      <label class="field"><span>Sales tax (%)</span><input id="dmTaxPct" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g., 7.5"></label>
+      <label class="field"><span>Extra fees (USD)</span><input id="dmFees" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g., 8.00"></label>
     </div>
     <div class="totals">
       <div class="total-line"><span>Estimated total</span><strong id="dmOutTotal">$-</strong></div>
@@ -128,7 +100,6 @@
     </div>
   </section>
 
-  <!-- Results -->
   <section class="card results" role="region" aria-live="polite" aria-atomic="true">
     <h2 class="section-title">Results</h2>
     <div class="big-number" id="dmOutRaw">-</div>
@@ -136,7 +107,6 @@
     <div class="note" id="dmOutRounding">Rounded to the nearest 0.25 lb for shopping.</div>
   </section>
 
-  <!-- Finder -->
   <section class="card finder" role="region" aria-label="Find brisket near me">
     <div class="finder-actions">
       <a class="btn primary" target="_blank" rel="noopener" href="https://www.google.com/maps/search/beef+brisket+near+me">Find beef brisket near me</a>
@@ -145,125 +115,43 @@
     </div>
   </section>
 
-  <!-- Legal footer -->
   <footer class="legal">
     Use for planning only. DinnerMath provides general portion and cost estimates based on USDA FoodData Central guidelines, catering standards, and typical averages. Results depend on the information you enter. DinnerMath is not responsible for purchasing decisions, food safety, or outcomes based on these estimates. (c) 2025 DinnerMath. All rights reserved.
   </footer>
 
 </main>
 
-<!-- Minimal wiring to expose DM_COMPUTE and DM_RENDER per v1.8 -->
 <script>
 (function(){
-  // Select-all on click and on focus
-  function attachSelectAll(el){
-    el.addEventListener('focus', function(){ el.select(); });
-    el.addEventListener('click', function(){ el.select(); });
-  }
-  ['dmAdults','dmTeens','dmChildren','dmPricePerLb','dmTaxPct','dmFees'].forEach(function(id){
-    var el = document.getElementById(id);
-    if (el) attachSelectAll(el);
-  });
-
-  // Constants (spec-locked)
-  var ADULT_BASE_COOKED_LB = 0.234; // cooked per adult
-  var TEEN_EQ = 0.85;
-  var CHILD_EQ = 0.60;
-  var YIELD = 0.60; // cooked/raw
-
-  function toNumber(id, defVal){
-    var el = document.getElementById(id);
-    if(!el) return defVal;
-    var v = parseFloat(el.value);
-    return isNaN(v) ? defVal : v;
-  }
-
-  function roundQuarter(x){
-    return Math.round(x * 4) / 4;
-  }
-
-  // Expose compute for Runner
-  window.DM_COMPUTE = function(){
-    var A = toNumber('dmAdults', 0);
-    var T = toNumber('dmTeens', 0);
-    var C = toNumber('dmChildren', 0);
-
-    var appetite = parseFloat(document.getElementById('dmAppetite').value || '1.00');
-    var role = parseFloat(document.getElementById('dmRole').value || '1.00');
-    var leftovers = parseFloat(document.getElementById('dmLeftovers').value || '1.00');
-
-    // Event Length hidden for meat: fixed 1.00 (not used)
-
-    var AE = (A) + (T * TEEN_EQ) + (C * CHILD_EQ);
-    var cooked_lb = AE * ADULT_BASE_COOKED_LB * appetite * role * leftovers;
-    var raw_lb = cooked_lb / YIELD;
-
-    var display_raw_lb = roundQuarter(raw_lb);
-
-    // Pricing (optional)
-    var pplb = toNumber('dmPricePerLb', NaN);
-    var taxPct = toNumber('dmTaxPct', NaN);
-    var fees = toNumber('dmFees', NaN);
-
-    var total = null, perPerson = null;
-    if (!isNaN(pplb)) {
-      var subtotal = display_raw_lb * pplb;
-      var tax = (!isNaN(taxPct) ? (subtotal * (taxPct/100)) : 0);
-      var extra = (!isNaN(fees) ? fees : 0);
-      total = subtotal + tax + extra;
-      var people = Math.max(1, Math.round(A + T + C));
-      perPerson = total / people;
-    }
-
-    return {
-      raw_lb: display_raw_lb,
-      raw_lb_exact: raw_lb,
-      total: total,
-      perPerson: perPerson
-    };
+  function s(el){el.addEventListener('focus',()=>el.select());el.addEventListener('click',()=>el.select());}
+  ['dmAdults','dmTeens','dmChildren','dmPricePerLb','dmTaxPct','dmFees'].forEach(id=>{var el=document.getElementById(id);if(el)s(el);});
+  var AD=0.234, TE=0.85, CH=0.60, Y=0.60;
+  function n(id,d){var el=document.getElementById(id);var v=parseFloat(el&&el.value);return isNaN(v)?d:v;}
+  function q(x){return Math.round(x*4)/4;}
+  window.DM_COMPUTE=function(){
+    var A=n('dmAdults',0),T=n('dmTeens',0),C=n('dmChildren',0);
+    var appetite=parseFloat(document.getElementById('dmAppetite').value||'1.00');
+    var role=parseFloat(document.getElementById('dmRole').value||'1.00');
+    var leftovers=parseFloat(document.getElementById('dmLeftovers').value||'1.00');
+    var AE=A+T*TE+C*CH;
+    var cooked=AE*AD*appetite*role*leftovers;
+    var raw=cooked/Y;
+    var disp=q(raw);
+    var pplb=n('dmPricePerLb',NaN),tax=n('dmTaxPct',NaN),fees=n('dmFees',NaN);
+    var total=null, per=null;
+    if(!isNaN(pplb)){var subtotal=disp*pplb; var taxAmt=!isNaN(tax)?subtotal*(tax/100):0; total=subtotal+taxAmt+(!isNaN(fees)?fees:0); var ppl=Math.max(1, Math.round(A+T+C)); per=total/ppl;}
+    return {raw_lb:disp,raw_lb_exact:raw,total:total,perPerson:per};
   };
-
-  // Expose render for Runner
-  window.DM_RENDER = function(result){
-    var outRaw = document.getElementById('dmOutRaw');
-    var fromLine = document.getElementById('dmOutFrom');
-    var rounding = document.getElementById('dmOutRounding');
-    if (typeof result.raw_lb === 'number') {
-      outRaw.textContent = result.raw_lb.toFixed(2).replace(/\.00$/,'');
-      fromLine.textContent = 'Raw beef brisket to buy (rounded for shopping).';
-      rounding.textContent = 'Rounded to the nearest 0.25 lb.';
-    } else {
-      outRaw.textContent = '-';
-      fromLine.textContent = 'Enter your guests and settings to calculate raw pounds to buy.';
-      rounding.textContent = 'Rounded to the nearest 0.25 lb for shopping.';
-    }
-
-    var outTotal = document.getElementById('dmOutTotal');
-    var outPer = document.getElementById('dmOutPerPerson');
-    if (result.total != null) {
-      outTotal.textContent = '$' + result.total.toFixed(2);
-      outPer.textContent = '$' + result.perPerson.toFixed(2);
-    } else {
-      outTotal.textContent = '$-';
-      outPer.textContent = '$-';
-    }
+  window.DM_RENDER=function(r){
+    var a=document.getElementById('dmOutRaw'),b=document.getElementById('dmOutFrom'),c=document.getElementById('dmOutRounding');
+    if(typeof r.raw_lb==='number'){a.textContent=r.raw_lb.toFixed(2).replace(/\.00$/,'');b.textContent='Raw beef brisket to buy (rounded for shopping).';c.textContent='Rounded to the nearest 0.25 lb.';}
+    else{a.textContent='-';b.textContent='Enter your guests and settings to calculate raw pounds to buy.';c.textContent='Rounded to the nearest 0.25 lb for shopping.';}
+    var t=document.getElementById('dmOutTotal'),p=document.getElementById('dmOutPerPerson');
+    if(r.total!=null){t.textContent='$'+r.total.toFixed(2);p.textContent='$'+r.perPerson.toFixed(2);} else {t.textContent='$-';p.textContent='$-';}
   };
-
-  // Basic live binding without relying on external runner (still works with Runner)
-  ['dmAdults','dmTeens','dmChildren','dmAppetite','dmRole','dmLeftovers','dmPricePerLb','dmTaxPct','dmFees'].forEach(function(id){
-    var el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener('input', function(){ window.DM_RENDER(window.DM_COMPUTE()); });
-    el.addEventListener('change', function(){ window.DM_RENDER(window.DM_COMPUTE()); });
-  });
-
-  // Initial paint
-  window.addEventListener('DOMContentLoaded', function(){
-    window.DM_RENDER(window.DM_COMPUTE());
-  });
+  ['dmAdults','dmTeens','dmChildren','dmAppetite','dmRole','dmLeftovers','dmPricePerLb','dmTaxPct','dmFees'].forEach(id=>{var el=document.getElementById(id);if(!el)return;el.addEventListener('input',()=>DM_RENDER(DM_COMPUTE()));el.addEventListener('change',()=>DM_RENDER(DM_COMPUTE()));});
+  window.addEventListener('DOMContentLoaded',()=>DM_RENDER(DM_COMPUTE()));
 })();
 </script>
-
 </body>
 </html>
-
