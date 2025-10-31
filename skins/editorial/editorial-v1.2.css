@@ -1,0 +1,202 @@
+/* DinnerMath Editorial Skin v1.1
+   File: /skins/editorial/editorial-v1.1.css
+   Purpose: neutral editorial look for all calculators
+   Notes: ASCII only. No font imports here. Keep classes stable.
+*/
+
+/* Theme tokens */
+:root{
+  --ink:#111827;          /* text */
+  --muted:#6b7280;        /* secondary text */
+  --bg:#f7f7f8;           /* page background */
+  --panel:#ffffff;        /* card background */
+  --line:#e5e7eb;         /* borders */
+  --accent:#111827;       /* buttons and focus ring */
+  --maxw:1120px;          /* content width */
+  --radius:12px;          /* card radius */
+  --shadow:0 1px 2px rgba(17,24,39,0.06),0 2px 8px rgba(17,24,39,0.06);
+}
+
+/* Reset-ish */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body.dm-editorial{
+  background:var(--bg);
+  color:var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  line-height:1.5;
+}
+
+/* Layout shell */
+.dm-editorial{
+  max-width:var(--maxw);
+  margin:0 auto;
+  padding:24px;
+}
+
+/* Header */
+.dm-header{margin:0 0 16px 0}
+.dm-h1{
+  font-size:clamp(28px, 3vw, 44px);
+  line-height:1.15;
+  margin:0 0 8px 0;
+  font-weight:800;
+}
+.dm-lede{
+  margin:0;
+  color:var(--muted);
+  font-size:clamp(14px, 1.6vw, 18px);
+}
+
+/* Grid for sections */
+.dm-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:16px;
+}
+@media (max-width: 960px){
+  .dm-grid{grid-template-columns:1fr}
+}
+
+/* Section containers */
+.grid{display:grid; gap:12px}
+.card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:16px;
+  box-shadow:var(--shadow);
+}
+
+/* Step labels and micro headings */
+.step-label{
+  font-size:12px;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin:0 0 8px 0;
+}
+
+/* Inline help / whispers */
+.muted{color:var(--muted); font-size:13px; margin-top:8px}
+
+/* Inputs */
+label{display:block; font-weight:600; margin:6px 0 6px 0; font-size:14px}
+.input-row{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+@media (max-width: 720px){ .input-row{grid-template-columns:1fr} }
+
+input[type="number"],
+input[type="text"],
+select, textarea{
+  width:100%;
+  font-size:16px;
+  padding:12px 12px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#fff;
+  color:var(--ink);
+  outline:none;
+  transition:border-color .12s ease, box-shadow .12s ease;
+  appearance:textfield;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0 }
+input:focus, select:focus, textarea:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(17,24,39,0.12);
+}
+
+/* Quick count pills */
+.pills{display:flex; gap:8px; flex-wrap:wrap; margin:0 0 10px 0}
+.pill{
+  border:1px solid var(--line);
+  background:#fff;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:14px;
+  cursor:pointer;
+  user-select:none;
+}
+.pill:hover{border-color:#cfd4dc}
+.pill:active{transform:translateY(1px)}
+
+/* Role, Appetite, Event Length, Leftovers selects */
+.select-block{display:block}
+
+/* Results panel */
+.results{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:16px;
+  box-shadow:var(--shadow);
+}
+.results h3{
+  margin:0 0 8px 0;
+  font-size:18px;
+  font-weight:800;
+}
+.result-row{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 0; border-top:1px solid var(--line);
+}
+.result-row:first-child{border-top:none}
+.result-key{color:var(--muted); font-size:14px}
+.result-value{font-size:20px; font-weight:800}
+
+/* Pricing */
+.pricing{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:16px;
+  box-shadow:var(--shadow);
+}
+.pricing .row{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+@media (max-width: 720px){ .pricing .row{grid-template-columns:1fr} }
+
+/* Finder block */
+.finder{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:16px;
+  box-shadow:var(--shadow);
+}
+.finder .actions{display:flex; gap:10px; flex-wrap:wrap}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  height:40px; padding:0 14px; border-radius:10px;
+  font-weight:700; font-size:14px; cursor:pointer; border:1px solid var(--accent);
+  background:var(--accent); color:#fff; text-decoration:none;
+}
+.btn.alt{background:#fff; color:var(--ink); border:1px solid var(--line)}
+
+/* FAQs and Quick Notes (accordion-ready wrappers) */
+.faqs, .notes{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:16px;
+  box-shadow:var(--shadow);
+}
+.faq-item + .faq-item{border-top:1px solid var(--line); margin-top:8px; padding-top:8px}
+
+/* Small print */
+.fine{color:var(--muted); font-size:12px; line-height:1.4}
+
+/* Table helpers */
+.table{width:100%; border-collapse:collapse; font-size:14px}
+.table th, .table td{padding:8px 10px; border-top:1px solid var(--line); text-align:left}
+.table th{font-weight:700}
+
+/* Print */
+@media print{
+  body{background:#fff}
+  .dm-editorial{max-width:none; padding:0}
+  .btn, .pills{display:none !important}
+  .dm-grid{grid-template-columns:1fr}
+  .card, .results, .pricing, .finder, .faqs, .notes{
+    box-shadow:none; border:1px solid #000;
+  }
+}
