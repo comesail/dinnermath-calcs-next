@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="dm-skin" content="editorial-v1.1">
+<title>Beef Brisket Quantity Calculator</title>
+<meta name="description" content="We will estimate how many pounds of raw brisket to buy (planning estimate).">
+<link rel="stylesheet" href="/skins/editorial/editorial-v1.1.css">
+<style>
+  /* Page-level helpers that are safe to keep in-file.
+     Do NOT import any tenderloin assets. ASCII only per lock. */
+  .visually-hidden{position:absolute!important;clip:rect(1px,1px,1px,1px);clip-path:inset(50%);height:1px;width:1px;overflow:hidden;white-space:nowrap;border:0;padding:0;margin:-1px}
+  .pill{display:inline-block;border:1px solid #d1d5db;border-radius:999px;padding:4px 8px;font-size:12px;color:#374151;background:#fff;margin-right:6px}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  @media (max-width:860px){.grid-2,.grid-3{grid-template-columns:1fr}}
+  .inline{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .btn{display:inline-block;border:1.5px solid #111;border-radius:999px;padding:8px 12px;font-size:13px;font-weight:800;text-decoration:none;color:#111;background:#fff;cursor:pointer}
+  .btn.accent{background:#111;color:#fff}
+  .muted{color:#6b7280}
+  input[type="number"],select{width:100%;min-height:44px;border:1px solid #d1d5db;border-radius:10px;padding:10px 12px;font-size:14px;line-height:1.2}
+  label{font-size:12.5px;color:#374151;font-weight:700;margin:0 0 4px 0;display:block}
+  .step-label{font-weight:800;margin:14px 0 8px 0}
+  .whisper{font-size:12.5px;color:#6b7280;font-style:italic;margin-top:4px}
+  .result-box{border:2px solid #111;border-radius:14px;padding:12px;background:#fff}
+  .result-big{font-size:26px;font-weight:900;line-height:1.1}
+  .fine{font-size:13px;color:#374151}
+  .divider{height:1px;background:#e5e7eb;margin:12px 0}
+  .section{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:14px;margin:12px 0}
+  .lede{color:#6b7280;text-align:center}
+  .hcenter{text-align:center}
+  .faq dt{font-weight:800;margin-top:8px}
+  .faq dd{margin:4px 0 10px 0;color:#374151}
+  .quick-notes li{margin:6px 0}
+  @media print{
+    .no-print{display:none!important}
+    .section{border:0}
+    .pill{border:0}
+  }
+</style>
+</head>
+<body class="dm-editorial">
+<main id="calc" class="dm-wrap">
+
+  <!-- Header -->
+  <header class="section" aria-label="Header">
+    <h1 class="hcenter">Beef Brisket Quantity Calculator</h1>
+    <p class="lede">We will estimate how many pounds of raw brisket to buy (planning estimate).</p>
+  </header>
+
+  <!-- Inputs -->
+  <section class="section" aria-label="Inputs">
+    <h2 class="hcenter" style="margin:0 0 6px 0">Inputs</h2>
+
+    <div class="step-label">Step 1 - Guests</div>
+    <div class="grid-3" aria-label="Guests">
+      <div>
+        <label for="A">Adults</label>
+        <input id="A" type="number" min="0" step="1" inputmode="numeric" value="10" autocomplete="off">
+      </div>
+      <div>
+        <label for="T">Teens</label>
+        <input id="T" type="number" min="0" step="1" inputmode="numeric" value="0" autocomplete="off">
+      </div>
+      <div>
+        <label for="C">Children</label>
+        <input id="C" type="number" min="0" step="1" inputmode="numeric" value="0" autocomplete="off">
+      </div>
+    </div>
+    <div class="inline" style="margin-top:8px">
+      <span class="muted">Quick presets:</span>
+      <button class="btn no-print" data-preset="10" type="button">10</button>
+      <button class="btn no-print" data-preset="25" type="button">25</button>
+      <button class="btn no-print" data-preset="50" type="button">50</button>
+      <button class="btn no-print" data-preset="100" type="button">100</button>
+      <span class="muted">Presets set all as adults. Adjust Teens and Children if needed.</span>
+    </div>
+
+    <div class="grid-2" style="margin-top:14px">
+      <div>
+        <div class="step-label">Step 2 - Appetite</div>
+        <label for="appetite">How generous would you like the portions to be?</label>
+        <select id="appetite" aria-describedby="appetiteHelp">
+          <option value="0.90">Light</option>
+          <option value="1.00" selected>Moderate</option>
+          <option value="1.15">Generous</option>
+        </select>
+        <div id="appetiteHelp" class="whisper">Allows for standard portions - fits most gatherings.</div>
+      </div>
+
+      <div>
+        <div class="step-label">Step 3 - Event length</div>
+        <label for="length">How long will your event last?</label>
+        <select id="length" aria-describedby="lengthHelp">
+          <option value="0.75">Short (under 2 hours)</option>
+          <option value="1.00" selected>Standard (2 to 3 hours)</option>
+          <option value="1.25">Long (4 to 5 hours)</option>
+          <option value="1.50">Extended (6 to 8 hours)</option>
+        </select>
+        <div id="lengthHelp" class="whisper">Longer events allow for seconds and snacking across more time.</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:14px">
+      <div>
+        <div class="step-label">Step 4 - Role / Meal-Share</div>
+        <label for="role">How much of the meal will brisket cover?</label>
+        <select id="role" aria-describedby="roleHelp">
+          <option value="1.00" selected>This will be the main protein for everyone</option>
+          <option value="0.60">This will share the plate with another main</option>
+          <option value="0.45">This will be one of several mains</option>
+          <option value="0.35">This is for small bites or tastings</option>
+        </select>
+        <div id="roleHelp" class="whisper">Plan for how prominently brisket features on the menu.</div>
+      </div>
+
+      <div>
+        <div class="step-label">Step 5 - Brisket details</div>
+        <label for="cut">Brisket cut</label>
+        <select id="cut" aria-describedby="cutHelp">
+          <option value="0.60" selected>Flat cut (about 40% shrink)</option>
+          <option value="0.55">Point cut (about 45% shrink)</option>
+        </select>
+        <div id="cutHelp" class="whisper">We convert cooked ounces to raw pounds using typical yields.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px">
+      <div class="step-label">Step 6 - Leftovers</div>
+      <div class="grid-3">
+        <div>
+          <label for="leftovers">Would you like to allow for leftovers?</label>
+          <select id="leftovers">
+            <option value="1.00" selected>No leftovers</option>
+            <option value="1.10">Some leftovers (+10%)</option>
+            <option value="1.20">Yes, plan extra (+20%)</option>
+          </select>
+          <div class="whisper">Leftovers ladder for mains.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="section" aria-label="Pricing">
+    <h2 class="hcenter" style="margin:0 0 6px 0">Pricing (optional)</h2>
+    <div class="grid-3">
+      <div>
+        <label for="price">Unit price (USD per lb)</label>
+        <input id="price" type="number" min="0" step="0.01" inputmode="decimal" placeholder="e.g., 5.49">
+      </div>
+      <div>
+        <label for="tax">Sales tax (%)</label>
+        <input id="tax" type="number" min="0" step="0.1" inputmode="decimal" placeholder="e.g., 7.5">
+      </div>
+      <div>
+        <label for="fees">Extra fees (USD)</label>
+        <input id="fees" type="number" min="0" step="0.01" inputmode="decimal" placeholder="e.g., 8.00">
+      </div>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section class="section" aria-label="Results" aria-live="polite" aria-atomic="true">
+    <h2 class="hcenter" style="margin:0 0 6px 0">Results</h2>
+    <div class="result-box">
+      <div class="muted">Estimated raw pounds to buy</div>
+      <div id="outRaw" class="result-big" aria-label="No estimate yet">-</div>
+      <div id="outFrom" class="fine">-</div>
+      <div id="outExplain" class="fine">Enter your guest mix to calculate.</div>
+      <div class="divider"></div>
+      <div class="inline">
+        <span id="pillGuests" class="pill">-</span>
+        <span id="pillRole" class="pill">-</span>
+        <span id="pillCut" class="pill">-</span>
+        <span id="pillPrice" class="pill">pricing optional</span>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:12px">
+      <div class="section" style="margin:0">
+        <h3 style="margin:0 0 6px 0">Cost estimate</h3>
+        <div class="inline">
+          <div><label>Subtotal</label><div id="outSubtotal" class="fine">$-</div></div>
+          <div><label>Tax and fees</label><div id="outAdds" class="fine">$-</div></div>
+          <div><label>Estimated total</label><div id="outTotal" class="fine">$-</div></div>
+          <div><label>Per person</label><div id="outPPP" class="fine">$-</div></div>
+        </div>
+      </div>
+
+      <div class="section no-print" style="margin:0">
+        <h3 style="margin:0 0 6px 0">Actions</h3>
+        <div class="inline">
+          <button id="printBtn" class="btn accent" type="button">Print results</button>
+          <button id="resetBtn" class="btn" type="button">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="micro" class="muted" style="margin-top:8px">-</div>
+  </section>
+
+  <!-- Finder -->
+  <section class="section" aria-label="Finder">
+    <h2 class="hcenter" style="margin:0 0 6px 0">Find brisket near you</h2>
+    <div class="inline">
+      <a class="btn" href="#" onclick="try{window.open('https://www.google.com/maps/search/beef+brisket+near+me','_blank');}catch(e){location.href='https://www.google.com/maps/search/beef+brisket+near+me';}return false;">Find beef brisket near me</a>
+      <a class="btn" href="#" onclick="try{window.open('https://www.google.com/maps/search/butcher+shop','_blank');}catch(e){location.href='https://www.google.com/maps/search/butcher+shop';}return false;">Butcher shops</a>
+      <a class="btn" href="#" onclick="try{window.open('https://www.google.com/maps/search/grocery+store','_blank');}catch(e){location.href='https://www.google.com/maps/search/grocery+store';}return false;">Grocery stores</a>
+    </div>
+  </section>
+
+  <!-- FAQs -->
+  <section class="section" aria-label="FAQs">
+    <h2 class="hcenter" style="margin:0 0 6px 0">FAQs</h2>
+    <dl class="faq">
+      <dt>Does this estimate include shrink?</dt>
+      <dd>Yes. The calculator converts cooked ounces to raw pounds using typical yields for flat and point cuts.</dd>
+
+      <dt>Why do results use quarter pounds?</dt>
+      <dd>Meat amounts round to the nearest 0.25 lb to keep shopping simple.</dd>
+
+      <dt>Should I change appetite or event length?</dt>
+      <dd>Use appetite to reflect portion size preferences and event length to reflect how long guests will be eating.</dd>
+
+      <dt>What about sauce and sides?</dt>
+      <dd>Use Role / Meal-Share to reduce the brisket amount when other mains or heavy sides are on the menu.</dd>
+    </dl>
+  </section>
+
+  <!-- Quick Notes -->
+  <section class="section" aria-label="Quick Notes">
+    <h2 class="hcenter" style="margin:0 0 6px 0">Quick Notes</h2>
+    <ul class="quick-notes">
+      <li>Adults, Teens, and Children are numeric-only. Click or focus selects all for quick edits.</li>
+      <li>Leftovers for mains add 10% or 20% as selected.</li>
+      <li>Pricing is optional. Enter price per lb, tax percent, and any fixed fees.</li>
+      <li>Use for planning only. Always confirm availability and adjust for your crowd.</li>
+    </ul>
+  </section>
+
+  <!-- Footer / Legal (Editorial Skin v1.1) -->
+  <footer class="section" aria-label="Footer">
+    <p class="muted" style="text-align:center">
+      Use for planning only. DinnerMath provides general portion and cost estimates based on typical averages and public sources. Results depend on the information you enter. DinnerMath is not responsible for purchasing decisions, food safety, or outcomes based on these estimates.<br>
+      Copyright 2025 DinnerMath. All rights reserved.
+    </p>
+  </footer>
+
+</main>
+
+<script>
+/* =========================
+   Guardrails (runtime)
+   ========================= */
+(function guardrails(){
+  var meta = document.querySelector('meta[name="dm-skin"]');
+  if(!meta || meta.getAttribute('content') !== 'editorial-v1.1'){
+    throw new Error('Skin guard: dm-skin meta must be editorial-v1.1');
+  }
+  var html = document.documentElement.outerHTML || '';
+  if(html.indexOf('/skins/tenderloin/') !== -1 || html.toLowerCase().indexOf('tenderloin.css') !== -1){
+    throw new Error('Skin guard: tenderloin references are not allowed in editorial build');
+  }
+})();
+
+/* =========================
+   Utilities
+   ========================= */
+const $ = id => document.getElementById(id);
+const N = (v,d=0)=>{const n=parseFloat(v);return isFinite(n)?n:d;};
+const money = n => (isFinite(n)&&n>=0)?"$"+n.toFixed(2):"$-";
+const fmt = (n,d=0)=> isFinite(n) ? n.toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d}) : "-";
+const ceilQtr = lbs => Math.ceil(Math.max(0,lbs)*4)/4; // round up to 0.25 lb
+
+/* =========================
+   Locked ladders (v1.8)
+   ========================= */
+const LADDERS = {
+  appetite: {
+    "0.90":"Allows for lighter portions - suited to smaller appetites or lighter eaters.",
+    "1.00":"Allows for standard portions - fits most gatherings.",
+    "1.15":"Allows for heartier portions - ideal for guests who tend to eat a bit more."
+  },
+  length: {
+    "0.75":"Short events reduce seconds.",
+    "1.00":"Typical event length.",
+    "1.25":"Long events allow for seconds.",
+    "1.50":"Extended events spread eating across many hours."
+  },
+  role: {
+    "1.00":"Plan for brisket as the main protein for everyone.",
+    "0.60":"Plan for brisket alongside another main.",
+    "0.45":"Plan for brisket as one of several mains.",
+    "0.35":"Plan for small bites or tastings."
+  }
+};
+
+/* =========================
+   Category constants (meat)
+   Preserve compute() from current brisket
+   ========================= */
+const BASE_COOKED_OZ_PER_ADULT = 6.0; // baseline cooked ounces per adult
+const MIX = { adult:1.00, teen:0.85, child:0.60 }; // crowd mix weights
+
+function compute(){
+  const A=N($("A").value,0), T=N($("T").value,0), C=N($("C").value,0);
+  const appetite = N($("appetite").value,1.0);
+  const length   = N($("length").value,1.0);
+  const role     = N($("role").value,1.0);
+  const leftovers= N($("leftovers").value,1.0);
+  const yieldFactor = N($("cut").value,0.60); // 0.60 flat, 0.55 point
+
+  const equivAdults = A*MIX.adult + T*MIX.teen + C*MIX.child;
+  const cookedOz = equivAdults * BASE_COOKED_OZ_PER_ADULT * appetite * length * role * leftovers;
+  const cookedLb = cookedOz/16;
+  const rawLb = (yieldFactor>0) ? (cookedLb / yieldFactor) : 0;
+  const rawRounded = ceilQtr(rawLb);
+
+  return { A,T,C, appetite,length,role,leftovers,yieldFactor, cookedOz,cookedLb, rawRounded, equivAdults };
+}
+
+function updateWhispers(){
+  const a = $("appetite").value, r=$("role").value, l=$("length").value;
+  const aHelp = LADDERS.appetite[a] || "";
+  const rHelp = LADDERS.role[r] || "";
+  const lHelp = LADDERS.length[l] || "";
+  const aEl = $("appetiteHelp"); if(aEl) aEl.textContent = aHelp;
+  const rEl = $("roleHelp"); if(rEl) rEl.textContent = "Plan for how prominently brisket features on the menu.";
+  const lEl = $("lengthHelp"); if(lEl) lEl.textContent = lHelp;
+}
+
+function render(){
+  const s = compute();
+  updateWhispers();
+
+  // Micro summary
+  const cutTxt = s.yieldFactor>=0.60 ? "flat cut" : "point cut";
+  const appTxt = $("appetite").selectedOptions[0].text.toLowerCase();
+  const lenTxt = $("length").selectedOptions[0].text.toLowerCase();
+  const roleTxt= $("role").selectedOptions[0].text.toLowerCase();
+  const leftTxt= $("leftovers").selectedOptions[0].text.toLowerCase();
+  const guests = s.A+s.T+s.C;
+
+  $("micro").textContent = guests>0
+    ? (guests+" guests - "+appTxt+" appetite - "+lenTxt+" - "+roleTxt+" - "+leftTxt+" - "+cutTxt)
+    : "-";
+
+  // Big number
+  const decimals = (s.rawRounded%1)?2:0;
+  $("outRaw").textContent = guests>0 ? (fmt(s.rawRounded, decimals)+" lb") : "-";
+  $("outRaw").setAttribute("aria-label", guests>0 ? ("Estimated raw pounds to buy: "+fmt(s.rawRounded,decimals)) : "No estimate yet");
+
+  // From line + explain
+  $("outFrom").textContent = guests>0
+    ? ("Estimated from "+guests+" guests; appetite "+appTxt+", "+lenTxt+", "+roleTxt+", "+cutTxt+".")
+    : "-";
+  const cookedDec = (s.cookedLb%1)?2:0;
+  $("outExplain").textContent = guests>0
+    ? ("About "+fmt(s.cookedLb, cookedDec)+" cooked pounds (before shrink).")
+    : "Enter your guest mix to calculate.";
+
+  // Pills
+  $("pillGuests").textContent = guests>0 ? (guests+" guests total") : "-";
+  $("pillRole").textContent   = guests>0 ? $("role").selectedOptions[0].text : "-";
+  $("pillCut").textContent    = guests>0 ? cutTxt : "-";
+
+  // Pricing
+  const price=N($("price").value,0), tax=N($("tax").value,0)/100, fees=N($("fees").value,0);
+  const subtotal = (price>0 && s.rawRounded>0) ? s.rawRounded*price : 0;
+  const adds = subtotal*tax + (fees>0?fees:0);
+  const total = subtotal + adds;
+  const ppp = (guests>0 && total>0) ? total/guests : NaN;
+
+  $("outSubtotal").textContent = subtotal>0 ? money(subtotal) : "$-";
+  $("outAdds").textContent     = subtotal>0 ? money(adds)     : "$-";
+  $("outTotal").textContent    = subtotal>0 ? money(total)    : "$-";
+  $("outPPP").textContent      = (subtotal>0 && guests>0) ? money(ppp) : "$-";
+  $("pillPrice").textContent   = (total>0 && guests>0) ? ("about "+money(ppp)+" per person") : "pricing optional";
+}
+
+/* =========================
+   Wiring
+   ========================= */
+["A","T","C","appetite","length","role","leftovers","cut","price","tax","fees"].forEach(id=>{
+  const el=$(id); if(!el) return;
+  el.addEventListener("input",render);
+  el.addEventListener("change",render);
+});
+
+["A","T","C"].forEach(id=>{
+  const el=$(id); if(!el) return;
+  // numeric-only
+  el.addEventListener("keypress",(e)=>{ if(e.key && !/[0-9]/.test(e.key)) e.preventDefault(); });
+  // select-all on click and focus
+  const sel=()=>{ try{el.select();}catch(_){} };
+  el.addEventListener("focus",sel);
+  el.addEventListener("click",sel);
+});
+
+// Presets
+document.querySelectorAll('[data-preset]').forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    const n=parseInt(btn.getAttribute("data-preset"),10)||0;
+    $("A").value=n; $("T").value=0; $("C").value=0;
+    const a=$("A"); try{ a.focus({preventScroll:true}); a.select(); }catch(e){}
+    render();
+  });
+});
+
+// Reset
+$("resetBtn").addEventListener("click",()=>{
+  document.querySelectorAll("input,select").forEach(el=>{
+    if(el.tagName==="SELECT"){
+      const i=Array.from(el.options).findIndex(o=>o.defaultSelected);
+      el.selectedIndex = i>=0 ? i : 0;
+    }else el.value = el.defaultValue;
+  });
+  render();
+  const a=$("A"); try{ a.focus({preventScroll:true}); a.select(); }catch(e){}
+});
+
+// Print
+$("printBtn").addEventListener("click",()=>window.print());
+
+// Kickoff
+const start = ()=>{ const a=$("A"); try{ a.focus({preventScroll:true}); a.select(); }catch(e){} render(); };
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, {once:true});
+else start();
+
+</script>
+</body>
+</html>
