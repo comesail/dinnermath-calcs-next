@@ -1,6 +1,3 @@
-Here’s the full replacement for `skins/editorial/BEEF-BRISKET-v3.html` with the corrected constants wired into `DM_COMPUTE`, Event Length hidden and fixed at 1.00, and the required head includes/body class. It keeps ASCII-only labels, the five-section order, and ends with `</main></body></html>`.
-
-```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -9,110 +6,98 @@ Here’s the full replacement for `skins/editorial/BEEF-BRISKET-v3.html` with th
   <meta name="dm-skin" content="editorial-v1.1">
   <title>Beef Brisket Quantity Calculator</title>
 
-  <!-- Editorial v1.1 pinned assets, repo-relative -->
   <link rel="stylesheet" href="./editorial-v1.1.css">
   <script defer src="../../engine/engine.v2.js"></script>
   <script defer src="../../runner/runner.v2.js"></script>
 </head>
 
 <body class="dm-editorial">
-<main>
+<main id="calculator" class="dm-grid">
 
-  <!-- 1) Header -->
-  <header class="dm-section dm-header" id="dm-header">
+  <!-- Header -->
+  <section class="card">
     <h1>Beef Brisket Quantity Calculator</h1>
-    <p class="dm-kicker">Plan how much brisket to cook or buy for your crowd. Adjust guests, appetite, and pricing as needed.</p>
-  </header>
-
-  <!-- 2) Inputs -->
-  <section class="dm-section" id="dm-inputs">
-    <div class="dm-card dm-grid dm-grid-3">
-      <div class="dm-field">
-        <label for="adults">Adults</label>
-        <input id="adults" class="dm-input dm-num" type="text" inputmode="numeric" pattern="[0-9]*" value="10" data-dm="adults" aria-label="Adults count">
-        <div class="dm-note">Numeric only. Select-all on focus and click.</div>
-      </div>
-      <div class="dm-field">
-        <label for="teens">Teens</label>
-        <input id="teens" class="dm-input dm-num" type="text" inputmode="numeric" pattern="[0-9]*" value="0" data-dm="teens" aria-label="Teens count">
-      </div>
-      <div class="dm-field">
-        <label for="children">Children</label>
-        <input id="children" class="dm-input dm-num" type="text" inputmode="numeric" pattern="[0-9]*" value="0" data-dm="children" aria-label="Children count">
-      </div>
-    </div>
-
-    <div class="dm-card" style="margin-top:16px;">
-      <div class="dm-field">
-        <label for="appetite">How generous would you like the portions to be?</label>
-        <select id="appetite" class="dm-select" data-dm="appetite" aria-label="Appetite level">
-          <option value="0.90">Light 0.90</option>
-          <option value="1.00" selected>Moderate 1.00</option>
-          <option value="1.15">Generous 1.15</option>
-        </select>
-        <div class="dm-note" id="appetite-whisper">Allows for standard portions, fits most gatherings.</div>
-      </div>
-    </div>
-
-    <!-- Hidden defaults per spec (Meat and Seafood hides Event Length) -->
-    <input type="hidden" id="role" data-dm="role" value="1.00">
-    <input type="hidden" id="length" data-dm="length" value="1.00">
-    <input type="hidden" id="leftovers" data-dm="leftovers" value="1.00">
-    <input type="hidden" id="cutYield" data-dm="cutYield" value="0.60">
+    <p>Plan how much brisket to cook or buy for your crowd. Adjust guests, appetite, and pricing as needed.</p>
   </section>
 
-  <!-- 3) Pricing -->
-  <section class="dm-section" id="dm-pricing">
-    <div class="dm-card">
-      <h2>Pricing</h2>
-      <div class="dm-grid dm-grid-3">
-        <div class="dm-field">
-          <label for="unitPrice">Unit price (dollars per lb)</label>
-          <input id="unitPrice" class="dm-input dm-num" type="text" inputmode="decimal" value="0.00" data-dm="unitPrice" aria-label="Unit price per pound">
-        </div>
-        <div class="dm-field">
-          <label for="taxPct">Sales tax percent</label>
-          <input id="taxPct" class="dm-input dm-num" type="text" inputmode="decimal" value="0" data-dm="taxPct" aria-label="Sales tax percent">
-        </div>
-        <div class="dm-field">
-          <label for="fees">Other fees (dollars)</label>
-          <input id="fees" class="dm-input dm-num" type="text" inputmode="decimal" value="0.00" data-dm="fees" aria-label="Other fees">
-        </div>
-      </div>
-      <div class="dm-note">Optional. Leave blank for price-free planning.</div>
+  <!-- Inputs -->
+  <section class="card">
+    <div class="step-label">Step 1 - Guests</div>
+    <div class="field-grid">
+      <label>
+        <span>Adults</span>
+        <input id="adults" class="dm-num" type="text" inputmode="numeric" pattern="[0-9]*" value="10" aria-label="Adults">
+      </label>
+      <label>
+        <span>Teens</span>
+        <input id="teens" class="dm-num" type="text" inputmode="numeric" pattern="[0-9]*" value="0" aria-label="Teens">
+      </label>
+      <label>
+        <span>Children</span>
+        <input id="children" class="dm-num" type="text" inputmode="numeric" pattern="[0-9]*" value="0" aria-label="Children">
+      </label>
     </div>
+
+    <div class="step-label">Step 2 - Appetite</div>
+    <label>
+      <span>How generous would you like the portions to be?</span>
+      <select id="appetite" aria-label="Appetite level">
+        <option value="0.90">Light 0.90</option>
+        <option value="1.00" selected>Moderate 1.00</option>
+        <option value="1.15">Generous 1.15</option>
+      </select>
+    </label>
+    <div id="appetite-whisper" class="note">Allows for standard portions, fits most gatherings.</div>
+
+    <!-- Hidden factors per spec -->
+    <input type="hidden" id="role" value="1.00">
+    <input type="hidden" id="leftovers" value="1.00">
+    <input type="hidden" id="length" value="1.00">
   </section>
 
-  <!-- 4) Results -->
-  <section class="dm-section" id="dm-results">
-    <div class="dm-card">
-      <h2>Results</h2>
-      <p class="dm-results-line" id="result-line">Enter guests to see the brisket estimate.</p>
-      <div id="result-pricing" class="dm-note">Pricing appears when unit price is provided.</div>
+  <!-- Pricing -->
+  <section class="card pricing">
+    <div class="step-label">Step 3 - Pricing</div>
+    <div class="field-grid">
+      <label>
+        <span>Unit price (dollars per lb)</span>
+        <input id="unitPrice" class="dm-num" type="text" inputmode="decimal" value="0.00" aria-label="Unit price per pound">
+      </label>
+      <label>
+        <span>Sales tax percent</span>
+        <input id="taxPct" class="dm-num" type="text" inputmode="decimal" value="0" aria-label="Sales tax percent">
+      </label>
+      <label>
+        <span>Other fees (dollars)</span>
+        <input id="fees" class="dm-num" type="text" inputmode="decimal" value="0.00" aria-label="Other fees">
+      </label>
     </div>
+    <div class="note">Optional. Leave blank for price-free planning.</div>
   </section>
 
-  <!-- 5) Finder -->
-  <section class="dm-section" id="dm-finder">
-    <div class="dm-card">
-      <h2>Find it near you</h2>
-      <div class="dm-actions">
-        <a href="#" id="finder-primary" class="dm-btn dm-btn-primary">Find brisket near me</a>
-        <a href="#" id="finder-link-1" class="dm-btn">Butcher shops</a>
-        <a href="#" id="finder-link-2" class="dm-btn">Grocery stores</a>
-      </div>
-      <div class="dm-note">Update these links to your preferred map queries or partners.</div>
+  <!-- Results -->
+  <section class="card results">
+    <div class="step-label">Step 4 - Results</div>
+    <div id="result-line" class="headline">Enter guests to see the brisket estimate.</div>
+    <div id="result-pricing" class="note">Pricing appears when unit price is provided.</div>
+  </section>
+
+  <!-- Finder -->
+  <section class="card finder">
+    <div class="step-label">Step 5 - Finder</div>
+    <div class="actions">
+      <a href="#" id="finder-primary" class="btn primary">Find brisket near me</a>
+      <a href="#" id="finder-link-1" class="btn">Butcher shops</a>
+      <a href="#" id="finder-link-2" class="btn">Grocery stores</a>
     </div>
+    <div class="note">Update these links to your preferred map queries or partners.</div>
   </section>
 
 </main>
 <script>
-  // ASCII-only helpers. No extra CSS/JS beyond pinned assets.
-
-  // Select-all on focus and click for numeric inputs; restrict to digits and one dot.
+  // Numeric inputs: select-all on focus/click; digits and one dot only.
   (function(){
-    var nums = document.querySelectorAll(".dm-num");
-    nums.forEach(function(el){
+    function makeNumeric(el){
       function sel(){ el.select(); }
       el.addEventListener("focus", sel);
       el.addEventListener("click", sel);
@@ -122,85 +107,77 @@ Here’s the full replacement for `skins/editorial/BEEF-BRISKET-v3.html` with th
         if(parts.length > 2){ v = parts[0] + "." + parts.slice(1).join(""); }
         el.value = v;
       });
-    });
+    }
+    document.querySelectorAll(".dm-num").forEach(makeNumeric);
   })();
 
-  // Appetite whisper text.
+  // Appetite whisper
   (function(){
     var appetite = document.getElementById("appetite");
     var whisper = document.getElementById("appetite-whisper");
     function setWhisper(val){
-      if(val === "0.90"){
-        whisper.textContent = "Allows for lighter portions, suited to smaller appetites or lighter eaters.";
-      } else if(val === "1.00"){
-        whisper.textContent = "Allows for standard portions, fits most gatherings.";
-      } else {
-        whisper.textContent = "Allows for heartier portions, ideal for guests who tend to eat a bit more.";
-      }
+      if(val === "0.90"){ whisper.textContent = "Allows for lighter portions, suited to smaller appetites or lighter eaters."; }
+      else if(val === "1.00"){ whisper.textContent = "Allows for standard portions, fits most gatherings."; }
+      else { whisper.textContent = "Allows for heartier portions, ideal for guests who tend to eat a bit more."; }
     }
-    appetite.addEventListener("change", function(){ setWhisper(appetite.value); });
+    appetite.addEventListener("change", function(){ setWhisper(appetite.value); trigger(); });
     setWhisper(appetite.value);
   })();
 
-  // ----- Beef Brisket compute pipeline (Engine v2) -----
+  // Compute constants (spec-locked)
   (function(){
-    // Spec-locked constants
-    var BASE_COOKED_LB_PER_ADULT = 0.234; // 3.75 oz cooked per adult
+    var ADULT_COOKED_BASELINE_LB = 0.234; // 3.75 oz cooked per adult
     var TEEN_FACTOR = 0.85;
     var CHILD_FACTOR = 0.60;
-    var RAW_TO_COOKED_YIELD = 0.60; // trimmed packer yield
+    var RAW_TO_COOKED_YIELD = 0.60; // 40 percent shrink
 
-    function num(id, fallback){
+    function n(id, d){
       var el = document.getElementById(id);
-      if(!el) return fallback || 0;
+      if(!el) return d||0;
       var v = parseFloat(el.value);
-      return isFinite(v) ? v : (fallback || 0);
+      return isFinite(v) ? v : (d||0);
     }
-    function factor(id, fallback){
-      var el = document.getElementById(id);
-      if(!el) return fallback || 1;
-      var v = parseFloat(el.value);
-      return isFinite(v) ? v : (fallback || 1);
-    }
+
+    function roundQuarter(x){ return Math.round(x * 4) / 4; }
+    function r2(x){ return Math.round(x * 100) / 100; }
+
     function priceSummary(rawLb){
-      var unit = num("unitPrice", 0);
-      var taxPct = num("taxPct", 0);
-      var fees = num("fees", 0);
+      var unit = n("unitPrice", 0);
+      var taxPct = n("taxPct", 0);
+      var fees = n("fees", 0);
       if(!unit){ return { has:false }; }
       var subtotal = rawLb * unit;
       var tax = subtotal * (taxPct/100);
       var total = subtotal + tax + fees;
-      var guests = Math.max(1, num("adults",0)+num("teens",0)+num("children",0));
+      var guests = Math.max(1, n("adults",0)+n("teens",0)+n("children",0));
       return { has:true, subtotal:subtotal, tax:tax, total:total, perPerson: total/guests };
     }
-    function r1(x){ return Math.round(x*10)/10; }
-    function r2(x){ return Math.round(x*100)/100; }
 
-    // Preferred Engine v2 hooks
+    // Engine v2 hooks
     window.DM_COMPUTE = function(ctx){
-      var adults = num("adults", 0);
-      var teens = num("teens", 0);
-      var children = num("children", 0);
+      var adults = n("adults", 0);
+      var teens = n("teens", 0);
+      var children = n("children", 0);
 
-      var appetite = factor("appetite", 1.00);     // 0.90 / 1.00 / 1.15
-      var role = factor("role", 1.00);             // 1.00 / 0.60 / 0.45 / 0.35
-      var leftovers = factor("leftovers", 1.00);   // 1.00 / 1.10 / 1.20
-      var length = 1.00;                           // hidden and fixed for Meat & Seafood
-      var yieldFactor = RAW_TO_COOKED_YIELD;       // spec-locked
+      var appetite = parseFloat(document.getElementById("appetite").value || "1.00");
+      var role = parseFloat(document.getElementById("role").value || "1.00");
+      var leftovers = parseFloat(document.getElementById("leftovers").value || "1.00");
+      var length = 1.00; // hidden for Meat and Seafood
 
-      var adultEq = adults + TEEN_FACTOR*teens + CHILD_FACTOR*children;
+      var adult_equiv = adults + TEEN_FACTOR*teens + CHILD_FACTOR*children;
 
-      // Cooked target (lb), then convert to raw using yield
-      var cookedLb = adultEq * BASE_COOKED_LB_PER_ADULT * appetite * role * leftovers * length;
-      var rawLb = cookedLb / yieldFactor;
+      var cooked_total_lb = adult_equiv * ADULT_COOKED_BASELINE_LB * appetite * role * leftovers;
+      var raw_total_lb = cooked_total_lb / RAW_TO_COOKED_YIELD;
+
+      var display_raw_lb = roundQuarter(raw_total_lb);
 
       return {
-        inputs: { adults:adults, teens:teens, children:children, appetite:appetite, role:role, leftovers:leftovers, length:length },
-        cookedLb: cookedLb,
-        rawLb: rawLb,
-        cookedLbRounded: r1(cookedLb),
-        rawLbRounded: r1(rawLb),
-        pricing: priceSummary(rawLb)
+        inputs:{ adults:adults, teens:teens, children:children, appetite:appetite, role:role, leftovers:leftovers, length:length },
+        cookedLb: cooked_total_lb,
+        rawLb: raw_total_lb,
+        rawRounded: display_raw_lb,
+        cookedRounded: r2(cooked_total_lb),
+        pricing: priceSummary(raw_total_lb)
       };
     };
 
@@ -208,36 +185,38 @@ Here’s the full replacement for `skins/editorial/BEEF-BRISKET-v3.html` with th
       var totalGuests = out.inputs.adults + out.inputs.teens + out.inputs.children;
       var line = "Enter guests to see the brisket estimate.";
       if(totalGuests > 0){
-        line = "Plan about " + out.rawLbRounded + " lb raw brisket (" + out.cookedLbRounded + " lb cooked).";
+        line = "Plan about " + out.rawRounded + " lb raw brisket (" + out.cookedRounded + " lb cooked).";
       }
       var lineEl = document.getElementById("result-line");
-      if(lineEl){ lineEl.textContent = line; }
+      if(lineEl) lineEl.textContent = line;
 
       var priceEl = document.getElementById("result-pricing");
       if(priceEl){
         if(out.pricing && out.pricing.has){
           priceEl.textContent =
-            "Estimated cost: $" + r2(out.pricing.subtotal).toFixed(2) +
-            " + tax $" + r2(out.pricing.tax).toFixed(2) +
-            " + fees = $" + r2(out.pricing.total).toFixed(2) +
-            " total ($" + r2(out.pricing.perPerson).toFixed(2) + " per person).";
+            "Estimated cost: $" + out.pricing.subtotal.toFixed(2) +
+            " + tax $" + out.pricing.tax.toFixed(2) +
+            " + fees = $" + out.pricing.total.toFixed(2) +
+            " total ($" + out.pricing.perPerson.toFixed(2) + " per person).";
         } else {
           priceEl.textContent = "Pricing appears when unit price is provided.";
         }
       }
     };
 
-    // Manual trigger in case the runner is not auto-wiring
     function trigger(){
       if(typeof window.DM_COMPUTE === "function" && typeof window.DM_RENDER === "function"){
         var out = window.DM_COMPUTE({});
         window.DM_RENDER(out, {});
       }
     }
-    ["adults","teens","children","appetite","role","leftovers","unitPrice","taxPct","fees"].forEach(function(id){
+
+    ["adults","teens","children","appetite","unitPrice","taxPct","fees"].forEach(function(id){
       var el = document.getElementById(id);
       if(el){ el.addEventListener("input", trigger); el.addEventListener("change", trigger); }
     });
+
+    // Initial render
     trigger();
   })();
 </script>
