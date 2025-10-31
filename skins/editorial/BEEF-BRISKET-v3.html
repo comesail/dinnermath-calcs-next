@@ -1,3 +1,6 @@
+Here’s the full replacement for `skins/editorial/BEEF-BRISKET-v3.html` with the corrected constants wired into `DM_COMPUTE`, Event Length hidden and fixed at 1.00, and the required head includes/body class. It keeps ASCII-only labels, the five-section order, and ends with `</main></body></html>`.
+
+```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -51,10 +54,11 @@
       </div>
     </div>
 
-    <!-- Hidden defaults to keep engine factors at 1.00 per lock -->
+    <!-- Hidden defaults per spec (Meat and Seafood hides Event Length) -->
     <input type="hidden" id="role" data-dm="role" value="1.00">
     <input type="hidden" id="length" data-dm="length" value="1.00">
     <input type="hidden" id="leftovers" data-dm="leftovers" value="1.00">
+    <input type="hidden" id="cutYield" data-dm="cutYield" value="0.60">
   </section>
 
   <!-- 3) Pricing -->
@@ -103,7 +107,7 @@
 
 </main>
 <script>
-  // ASCII-only helpers. Inline only. No external CSS/JS beyond the three pinned assets.
+  // ASCII-only helpers. No extra CSS/JS beyond pinned assets.
 
   // Select-all on focus and click for numeric inputs; restrict to digits and one dot.
   (function(){
@@ -138,22 +142,105 @@
     setWhisper(appetite.value);
   })();
 
-  // Friendly placeholder until engine.v2 and runner.v2 compute real outputs.
+  // ----- Beef Brisket compute pipeline (Engine v2) -----
   (function(){
-    function updatePlaceholder(){
-      var a = parseFloat(document.getElementById("adults").value || "0") || 0;
-      var t = parseFloat(document.getElementById("teens").value || "0") || 0;
-      var c = parseFloat(document.getElementById("children").value || "0") || 0;
-      var total = a + t + c;
-      var line = total > 0 ? "Calculating for " + total + " guests..." : "Enter guests to see the brisket estimate.";
-      document.getElementById("result-line").textContent = line;
-    }
-    ["adults","teens","children","appetite","unitPrice","taxPct","fees"].forEach(function(id){
+    // Spec-locked constants
+    var BASE_COOKED_LB_PER_ADULT = 0.234; // 3.75 oz cooked per adult
+    var TEEN_FACTOR = 0.85;
+    var CHILD_FACTOR = 0.60;
+    var RAW_TO_COOKED_YIELD = 0.60; // trimmed packer yield
+
+    function num(id, fallback){
       var el = document.getElementById(id);
-      if(el){ el.addEventListener("input", updatePlaceholder); el.addEventListener("change", updatePlaceholder); }
+      if(!el) return fallback || 0;
+      var v = parseFloat(el.value);
+      return isFinite(v) ? v : (fallback || 0);
+    }
+    function factor(id, fallback){
+      var el = document.getElementById(id);
+      if(!el) return fallback || 1;
+      var v = parseFloat(el.value);
+      return isFinite(v) ? v : (fallback || 1);
+    }
+    function priceSummary(rawLb){
+      var unit = num("unitPrice", 0);
+      var taxPct = num("taxPct", 0);
+      var fees = num("fees", 0);
+      if(!unit){ return { has:false }; }
+      var subtotal = rawLb * unit;
+      var tax = subtotal * (taxPct/100);
+      var total = subtotal + tax + fees;
+      var guests = Math.max(1, num("adults",0)+num("teens",0)+num("children",0));
+      return { has:true, subtotal:subtotal, tax:tax, total:total, perPerson: total/guests };
+    }
+    function r1(x){ return Math.round(x*10)/10; }
+    function r2(x){ return Math.round(x*100)/100; }
+
+    // Preferred Engine v2 hooks
+    window.DM_COMPUTE = function(ctx){
+      var adults = num("adults", 0);
+      var teens = num("teens", 0);
+      var children = num("children", 0);
+
+      var appetite = factor("appetite", 1.00);     // 0.90 / 1.00 / 1.15
+      var role = factor("role", 1.00);             // 1.00 / 0.60 / 0.45 / 0.35
+      var leftovers = factor("leftovers", 1.00);   // 1.00 / 1.10 / 1.20
+      var length = 1.00;                           // hidden and fixed for Meat & Seafood
+      var yieldFactor = RAW_TO_COOKED_YIELD;       // spec-locked
+
+      var adultEq = adults + TEEN_FACTOR*teens + CHILD_FACTOR*children;
+
+      // Cooked target (lb), then convert to raw using yield
+      var cookedLb = adultEq * BASE_COOKED_LB_PER_ADULT * appetite * role * leftovers * length;
+      var rawLb = cookedLb / yieldFactor;
+
+      return {
+        inputs: { adults:adults, teens:teens, children:children, appetite:appetite, role:role, leftovers:leftovers, length:length },
+        cookedLb: cookedLb,
+        rawLb: rawLb,
+        cookedLbRounded: r1(cookedLb),
+        rawLbRounded: r1(rawLb),
+        pricing: priceSummary(rawLb)
+      };
+    };
+
+    window.DM_RENDER = function(out, ctx){
+      var totalGuests = out.inputs.adults + out.inputs.teens + out.inputs.children;
+      var line = "Enter guests to see the brisket estimate.";
+      if(totalGuests > 0){
+        line = "Plan about " + out.rawLbRounded + " lb raw brisket (" + out.cookedLbRounded + " lb cooked).";
+      }
+      var lineEl = document.getElementById("result-line");
+      if(lineEl){ lineEl.textContent = line; }
+
+      var priceEl = document.getElementById("result-pricing");
+      if(priceEl){
+        if(out.pricing && out.pricing.has){
+          priceEl.textContent =
+            "Estimated cost: $" + r2(out.pricing.subtotal).toFixed(2) +
+            " + tax $" + r2(out.pricing.tax).toFixed(2) +
+            " + fees = $" + r2(out.pricing.total).toFixed(2) +
+            " total ($" + r2(out.pricing.perPerson).toFixed(2) + " per person).";
+        } else {
+          priceEl.textContent = "Pricing appears when unit price is provided.";
+        }
+      }
+    };
+
+    // Manual trigger in case the runner is not auto-wiring
+    function trigger(){
+      if(typeof window.DM_COMPUTE === "function" && typeof window.DM_RENDER === "function"){
+        var out = window.DM_COMPUTE({});
+        window.DM_RENDER(out, {});
+      }
+    }
+    ["adults","teens","children","appetite","role","leftovers","unitPrice","taxPct","fees"].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el){ el.addEventListener("input", trigger); el.addEventListener("change", trigger); }
     });
-    updatePlaceholder();
+    trigger();
   })();
 </script>
 </body>
 </html>
+
