@@ -6,33 +6,14 @@
   <meta name="dm-skin" content="editorial-v1.1">
   <title>Beef Brisket Quantity Calculator</title>
 
-  <!-- Editorial skin assets only, repo-relative -->
+  <!-- Editorial v1.1 pinned assets, repo-relative -->
   <link rel="stylesheet" href="./editorial-v1.1.css">
   <script defer src="../../engine/engine.v2.js"></script>
   <script defer src="../../runner/runner.v2.js"></script>
-
-  <style>
-    /* Page-local helpers. ASCII only. */
-    .dm-wrap { max-width: 960px; margin: 0 auto; padding: 24px; }
-    .dm-section { margin: 28px 0; }
-    .dm-card { border: 1px solid #e5e5e5; border-radius: 16px; padding: 18px; }
-    .dm-header h1 { margin: 0 0 8px 0; font-size: 28px; }
-    .dm-kicker { color: #555; font-size: 16px; }
-    .dm-grid { display: grid; gap: 16px; }
-    .cols-3 { grid-template-columns: repeat(3, 1fr); }
-    @media (max-width: 720px){ .cols-3 { grid-template-columns: 1fr; } }
-    .dm-field label { display: block; font-weight: 600; margin-bottom: 8px; }
-    .dm-input, .dm-select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 10px; font-size: 16px; }
-    .dm-note { font-size: 14px; color: #666; margin-top: 6px; }
-    .dm-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-    .dm-btn { display: inline-block; padding: 12px 16px; border: 1px solid #222; border-radius: 999px; text-decoration: none; }
-    .dm-btn.primary { background: #111; color: #fff; }
-    .dm-results-line { font-size: 18px; font-weight: 700; }
-  </style>
 </head>
 
 <body class="dm-editorial">
-<main class="dm-wrap">
+<main>
 
   <!-- 1) Header -->
   <header class="dm-section dm-header" id="dm-header">
@@ -42,7 +23,7 @@
 
   <!-- 2) Inputs -->
   <section class="dm-section" id="dm-inputs">
-    <div class="dm-card dm-grid cols-3">
+    <div class="dm-card dm-grid dm-grid-3">
       <div class="dm-field">
         <label for="adults">Adults</label>
         <input id="adults" class="dm-input dm-num" type="text" inputmode="numeric" pattern="[0-9]*" value="10" data-dm="adults" aria-label="Adults count">
@@ -70,18 +51,17 @@
       </div>
     </div>
 
-    <!-- Hidden defaults to satisfy engine factors without exposing controls -->
+    <!-- Hidden defaults to keep engine factors at 1.00 per lock -->
     <input type="hidden" id="role" data-dm="role" value="1.00">
     <input type="hidden" id="length" data-dm="length" value="1.00">
     <input type="hidden" id="leftovers" data-dm="leftovers" value="1.00">
-    <!-- End hidden defaults -->
   </section>
 
   <!-- 3) Pricing -->
   <section class="dm-section" id="dm-pricing">
     <div class="dm-card">
-      <h2 style="margin:0 0 12px 0;">Pricing</h2>
-      <div class="dm-grid cols-3">
+      <h2>Pricing</h2>
+      <div class="dm-grid dm-grid-3">
         <div class="dm-field">
           <label for="unitPrice">Unit price (dollars per lb)</label>
           <input id="unitPrice" class="dm-input dm-num" type="text" inputmode="decimal" value="0.00" data-dm="unitPrice" aria-label="Unit price per pound">
@@ -102,7 +82,7 @@
   <!-- 4) Results -->
   <section class="dm-section" id="dm-results">
     <div class="dm-card">
-      <h2 style="margin:0 0 12px 0;">Results</h2>
+      <h2>Results</h2>
       <p class="dm-results-line" id="result-line">Enter guests to see the brisket estimate.</p>
       <div id="result-pricing" class="dm-note">Pricing appears when unit price is provided.</div>
     </div>
@@ -111,9 +91,9 @@
   <!-- 5) Finder -->
   <section class="dm-section" id="dm-finder">
     <div class="dm-card">
-      <h2 style="margin:0 0 12px 0;">Find it near you</h2>
+      <h2>Find it near you</h2>
       <div class="dm-actions">
-        <a href="#" id="finder-primary" class="dm-btn primary">Find brisket near me</a>
+        <a href="#" id="finder-primary" class="dm-btn dm-btn-primary">Find brisket near me</a>
         <a href="#" id="finder-link-1" class="dm-btn">Butcher shops</a>
         <a href="#" id="finder-link-2" class="dm-btn">Grocery stores</a>
       </div>
@@ -123,9 +103,9 @@
 
 </main>
 <script>
-  // ASCII-only helpers. No legacy v1 files. No Tenderloin.
+  // ASCII-only helpers. Inline only. No external CSS/JS beyond the three pinned assets.
 
-  // Select-all on focus and click for numeric fields, and numeric-only filter.
+  // Select-all on focus and click for numeric inputs; restrict to digits and one dot.
   (function(){
     var nums = document.querySelectorAll(".dm-num");
     nums.forEach(function(el){
