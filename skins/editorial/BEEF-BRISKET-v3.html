@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Beef Brisket Quantity Calculator</title>
+  <title>Beef Brisket Quantity Calculator - How Much You'll Need</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Compat meta -->
+  <!-- Compat meta (logic stays on Portion Spec v1.8 + Hybrid cushion) -->
   <meta name="dm-category" content="meat">
   <meta name="dm-food" content="beef brisket">
   <meta name="dm-portion-spec" content="v1.8">
@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="./editorial-v1.1.css">
   <link rel="stylesheet" href="./editorial-premium-v1.0.css">
 
-  <!-- Engine/runner -->
+  <!-- Engine/runner (keep hooks/IDs intact) -->
   <script defer src="../../engine/engine.v2.js"></script>
   <script defer src="../../runner/runner.v2.js"></script>
 </head>
@@ -25,11 +25,11 @@
     <!-- Header -->
     <section class="card header header--dark" data-section="header">
       <picture class="hero">
-        <!-- If your file is beef-brisket-hero.jpg, swap the filename below -->
-        <img src="./img/beef-brisket-slug-hero.jpg" alt="Sliced beef brisket on a board">
+        <!-- If your filename differs, swap it (e.g., beef-brisket-slug-hero.jpg) -->
+        <img src="./img/beef-brisket-hero.jpg" alt="Sliced beef brisket on a board">
       </picture>
-      <h1 class="calc-title dm-h1">Beef Brisket Calculator</h1>
-      <p class="dm-lede">We will estimate how much brisket to buy (planning amount) based on your crowd and plate context.</p>
+      <h1 class="calc-title dm-h1">Beef Brisket Quantity Calculator - How Much You'll Need</h1>
+      <p class="dm-lede">Enter guests and settings (or tap a quick preset). We'll estimate how many pounds of raw brisket you'll need (planning estimate).</p>
     </section>
 
     <!-- Inputs -->
@@ -46,39 +46,40 @@
           <label for="input-children">Children</label>
           <input id="input-children" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="0" data-hook="children">
         </div>
-        <div class="whisper">Teens count at 0.80 of an adult for portion math.</div>
+        <!-- Per your spec, no teen whisper line displayed here -->
       </div>
 
-      <!-- STEP 1 -->
+      <!-- STEP 1 (Role question only; no "Role/Meal-Share" label) -->
       <div class="step" id="step-role">
         <div class="step-kicker">STEP 1</div>
         <div class="step-label">Will this be the only meat you are serving?</div>
         <div class="select-row">
-          <label for="role-select" class="sr-only">Role on the plate</label>
+          <label for="role-select" class="sr-only">Meat role</label>
           <select id="role-select">
-            <option value="1.00">Yes, only meat. Allows for full servings.</option>
-            <option value="0.60">Alongside another meat. Allows for smaller servings.</option>
-            <option value="0.45">Small portion only. Allows for a small portion.</option>
-            <option value="0.35">Tasting or small bite. Allows for a tiny portion.</option>
+            <!-- Dynamic, food-aware copy; multipliers in value for engine bridge -->
+            <option value="1.00">This is the only meat being served. Allows for full servings, about 3 to 4 oz cooked per person.</option>
+            <option value="0.60">This will be served alongside another meat. Allows for smaller servings, about 2 to 3 oz cooked per person.</option>
+            <option value="0.45">I only want to serve a small portion. Allows for a small portion, about 1.5 to 2 oz cooked per person.</option>
+            <option value="0.35">This is just a tasting or small bite of beef brisket before the meal. Allows for a tiny portion, about 1 oz cooked per person.</option>
           </select>
         </div>
       </div>
 
-      <!-- STEP 2 -->
+      <!-- STEP 2 (Appetite ladder) -->
       <div class="step" id="step-appetite">
         <div class="step-kicker">STEP 2</div>
         <div class="step-label">How generous would you like portions to be?</div>
         <div class="select-row">
           <label for="appetite-select" class="sr-only">Appetite</label>
           <select id="appetite-select">
-            <option value="0.90">Light — Allows for lighter portions.</option>
-            <option value="1.00" selected>Moderate — Allows for standard portions.</option>
-            <option value="1.15">Generous — Allows for heartier portions.</option>
+            <option value="0.90">Light - Allows for lighter portions.</option>
+            <option value="1.00" selected>Typical - Allows for standard portions.</option>
+            <option value="1.15">Hearty - Allows for heartier portions.</option>
           </select>
         </div>
       </div>
 
-      <!-- Cut style (not numbered; food-specific) -->
+      <!-- Cut style (un-numbered; food-specific) -->
       <div class="step" id="step-cut-style">
         <div class="step-label">Cut style</div>
         <div class="select-row">
@@ -92,15 +93,15 @@
         <div class="whisper">We convert cooked ounces to raw pounds using the shrink for your cut.</div>
       </div>
 
-      <!-- Event Length: hidden for meat per v1.6 -->
-      <!-- Leftovers: removed per v1.9 Hybrid -->
+      <!-- Event Length: hidden for meat per category rules -->
+      <!-- Leftovers: removed per Hybrid cushion -->
     </section>
 
     <!-- Results -->
     <section class="card results" data-section="results">
       <div class="summary">
         <div class="from-line" id="affirm-line">
-          Based on your guests, role, appetite, and cut style:
+          Based on your guests, meat role, appetite, and cut style:
         </div>
         <div class="big-number">
           <span id="result-total-raw-lb" data-hook="result-total-raw-lb">0</span>
@@ -120,7 +121,7 @@
       </div>
     </section>
 
-    <!-- Pricing (optional; can be above or below Results per your page pattern) -->
+    <!-- Pricing (optional) -->
     <section class="card pricing" data-section="pricing">
       <div class="step-label">Pricing (optional)</div>
       <div class="fields three-up">
@@ -149,13 +150,14 @@
 
     <!-- Legal -->
     <footer class="legal" data-section="legal">
-      Use for planning only. DinnerMath provides general portion and cost estimates based on USDA FoodData Central guidelines, catering standards, and typical averages. Results depend on the information you enter. DinnerMath is not responsible for purchasing decisions, food safety, or outcomes based on these estimates. (c) 2025 DinnerMath. All rights reserved.
+      Planning estimates only. Confirm with your retailer and adjust for your crowd. DinnerMath is not responsible for decisions, purchases, or outcomes based on these estimates. (c) 2025 DinnerMath. All rights reserved.
     </footer>
   </main>
 
-  <!-- Strong select-all on focus/click -->
+  <!-- UX helpers + dropdown->engine bridge (keeps your existing engine/runner working) -->
   <script>
     (function () {
+      // Strong select-all on focus/click
       var ids = ["input-adults","input-teens","input-children","price-per-lb","sales-tax","fees"];
       ids.forEach(function(id){
         var el = document.getElementById(id);
@@ -165,12 +167,7 @@
         el.addEventListener("click", sel);
       });
 
-      // Bridge: dropdowns -> hidden pill proxies the engine listens to
-      // Appetite
-      var appetiteSelect = document.getElementById("appetite-select");
-      var roleSelect = document.getElementById("role-select");
-
-      // Create hidden pill sets with the exact data-hook signature
+      // Bridge the dropdown UI to the pill-based engine hooks
       function makeHiddenPills(name, values){
         var wrap = document.createElement("div");
         wrap.style.display = "none";
@@ -186,9 +183,12 @@
         return wrap.querySelectorAll('[data-hook="'+name+'"]');
       }
 
+      // Appetite ladder
+      var appetiteSelect = document.getElementById("appetite-select");
       var appetitePills = makeHiddenPills("appetite", ["0.90","1.00","1.15"]);
-      // Role uses the same engine multiplier pattern but distinct hook name in some builds.
-      // To stay safe, we set both common hooks.
+
+      // Role ladder (support both possible hook names used in prior builds)
+      var roleSelect = document.getElementById("role-select");
       var rolePillsA = makeHiddenPills("role", ["1.00","0.60","0.45","0.35"]);
       var rolePillsB = makeHiddenPills("meal-share", ["1.00","0.60","0.45","0.35"]);
 
@@ -200,18 +200,18 @@
         });
       }
 
-      function syncFromSelect(){
+      function syncFromSelects(){
         pressMatch(appetitePills, appetiteSelect.value);
         pressMatch(rolePillsA, roleSelect.value);
         pressMatch(rolePillsB, roleSelect.value);
       }
 
-      appetiteSelect.addEventListener("change", syncFromSelect);
-      roleSelect.addEventListener("change", syncFromSelect);
+      appetiteSelect.addEventListener("change", syncFromSelects);
+      roleSelect.addEventListener("change", syncFromSelects);
 
       // Kick once on load so results populate
       window.addEventListener("DOMContentLoaded", function(){
-        syncFromSelect();
+        syncFromSelects();
         ["input-adults","input-teens","input-children"].forEach(function(id){
           var el = document.getElementById(id);
           if(el){ el.dispatchEvent(new Event("input", {bubbles:true})); }
@@ -221,5 +221,3 @@
   </script>
 </body>
 </html>
-
-
