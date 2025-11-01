@@ -28,7 +28,7 @@
         <img src="./img/beef-brisket-slug-hero.jpg" alt="Sliced beef brisket on a board">
       </picture>
       <h1 class="calc-title dm-h1">Beef Brisket Calculator</h1>
-      <p class="dm-lede">Plan how many pounds of brisket to buy for your crowd. Adjust guests, appetite, event length, and cut style.</p>
+      <p class="dm-lede">We will estimate how much brisket to buy (planning amount) based on your crowd and plate context.</p>
     </section>
 
     <!-- Inputs -->
@@ -36,10 +36,11 @@
 
       <!-- Guests -->
       <div class="step" id="step-guests">
-        <div class="step-label">Guests</div>
+        <div class="step-kicker">STEP 0</div>
+        <div class="step-label">How many people are you serving?</div>
         <div class="fields three-up">
           <label for="input-adults">Adults</label>
-          <input id="input-adults" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="10" data-hook="adults">
+          <input id="input-adults" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="5" data-hook="adults">
           <label for="input-teens">Teens</label>
           <input id="input-teens" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="0" data-hook="teens" data-ae="0.80">
           <label for="input-children">Children</label>
@@ -48,34 +49,41 @@
         <div class="whisper">Teens count at 0.80 of an adult for portion math.</div>
       </div>
 
-      <!-- Appetite -->
-      <div class="step" id="step-appetite">
-        <div class="step-label">Appetite</div>
-        <div class="pills" role="group" aria-label="Appetite">
-          <button class="pill" data-hook="appetite" data-mult="0.90" aria-pressed="false">Light</button>
-          <button class="pill is-active" data-hook="appetite" data-mult="1.00" aria-pressed="true">Moderate</button>
-          <button class="pill" data-hook="appetite" data-mult="1.15" aria-pressed="false">Generous</button>
-        </div>
-        <div class="whisper">Choose how hearty portions should be.</div>
-      </div>
-
-      <!-- Event Length (Meat rules: visible) -->
-      <div class="step" id="step-event-length">
-        <div class="step-label">Event Length</div>
-        <div class="pills" role="group" aria-label="Event Length">
-          <button class="pill" data-hook="event-length" data-mult="0.75" aria-pressed="false">Short</button>
-          <button class="pill is-active" data-hook="event-length" data-mult="1.00" aria-pressed="true">Standard</button>
-          <button class="pill" data-hook="event-length" data-mult="1.25" aria-pressed="false">Long</button>
-          <button class="pill" data-hook="event-length" data-mult="1.50" aria-pressed="false">Extended</button>
-        </div>
-        <div class="whisper">Longer events typically need a bit more.</div>
-      </div>
-
-      <!-- Cut Style -->
-      <div class="step" id="step-cut-style">
-        <div class="step-label">Cut style</div>
+      <!-- STEP 1: Role / Meal-Share -->
+      <div class="step" id="step-role">
+        <div class="step-kicker">STEP 1</div>
+        <div class="step-label">Will this be the only meat you are serving?</div>
         <div class="select-row">
-          <label for="cut-style">Choose cut</label>
+          <label for="role">Role / Meal-Share</label>
+          <select id="role" data-hook="role">
+            <option value="1.00" data-mult="1.00">This is the only meat being served. (Allows for full servings.)</option>
+            <option value="0.60" data-mult="0.60">This will be served alongside another meat. (Allows for smaller servings.)</option>
+            <option value="0.45" data-mult="0.45">I only want to serve a small portion. (Allows for a small portion.)</option>
+            <option value="0.35" data-mult="0.35">This is just a tasting or small bite of beef brisket before the meal. (Allows for a tiny portion.)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- STEP 2: Appetite -->
+      <div class="step" id="step-appetite">
+        <div class="step-kicker">STEP 2</div>
+        <div class="step-label">How generous would you like the portions to be?</div>
+        <div class="select-row">
+          <label for="appetite">Appetite</label>
+          <select id="appetite" data-hook="appetite">
+            <option value="0.90" data-mult="0.90">Light — Allows for lighter portions.</option>
+            <option value="1.00" data-mult="1.00" selected>Moderate — Allows for standard portions.</option>
+            <option value="1.15" data-mult="1.15">Generous — Allows for heartier portions.</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- STEP 3: Cut Style (food-specific) -->
+      <div class="step" id="step-cut-style">
+        <div class="step-kicker">STEP 3</div>
+        <div class="step-label">Choose your cut style</div>
+        <div class="select-row">
+          <label for="cut-style">Cut style</label>
           <select id="cut-style" data-hook="cut-style">
             <option value="packer" data-cut="packer">Whole packer</option>
             <option value="flat" data-cut="flat">Flat (first cut)</option>
@@ -85,13 +93,13 @@
         <div class="whisper">We convert cooked ounces to raw pounds using the shrink for your cut.</div>
       </div>
 
-      <!-- Leftovers removed: handled by hybrid cushion in results note -->
+      <!-- Event Length: omitted for meats layout (defaults handled by engine) -->
 
     </section>
 
     <!-- Pricing -->
     <section class="card pricing" data-section="pricing">
-      <div class="step-label">Pricing</div>
+      <div class="step-label">Pricing (optional)</div>
       <div class="fields three-up">
         <label for="price-per-lb">Unit price ($/lb)</label>
         <input id="price-per-lb" inputmode="decimal" autocomplete="off" value="6.99" data-hook="price-per-lb">
@@ -100,13 +108,15 @@
         <label for="fees">Fees ($)</label>
         <input id="fees" inputmode="decimal" autocomplete="off" value="0" data-hook="price-fees">
       </div>
-      <div class="whisper">Pricing is optional and for planning only.</div>
+      <div class="whisper">Pricing is for planning only.</div>
     </section>
 
     <!-- Results -->
     <section class="card results" data-section="results">
       <div class="summary">
-        <div class="from-line" id="affirm-line">Based on your guests, appetite, event length, and cut style:</div>
+        <div class="from-line" id="affirm-line">
+          Based on your guests, role/meal-share, appetite, and cut style:
+        </div>
         <div class="big-number">
           <span id="result-total-raw-lb" data-hook="result-total-raw-lb">0</span>
           <span class="unit">lb raw brisket</span>
@@ -116,7 +126,9 @@
           <div><span id="result-per-person-cooked-oz" data-hook="result-per-person-cooked-oz">0</span> oz cooked per person</div>
           <div class="price" id="result-price" data-hook="result-price">$0.00 estimated total</div>
         </div>
-        <div class="method-note" id="rounding-note">Totals reflect a slight rounding adjustment for realistic portions.</div>
+        <div class="method-note" id="rounding-note">
+          Totals reflect a slight rounding adjustment for realistic portions.
+        </div>
       </div>
       <div class="actions">
         <button class="button" data-hook="print">Print results</button>
@@ -129,7 +141,7 @@
       <div class="finder-actions">
         <a class="button primary" data-hook="finder-primary" href="#" rel="noopener">Find brisket near me</a>
         <div class="links">
-          <a data-hook="finder-secondary" href="#" rel="noopener">Seafood markets</a>
+          <a data-hook="finder-secondary" href="#" rel="noopener">Butcher shops</a>
           <a data-hook="finder-tertiary" href="#" rel="noopener">Grocery stores</a>
         </div>
       </div>
@@ -138,7 +150,7 @@
 
     <!-- Legal -->
     <footer class="legal" data-section="legal">
-      Use for planning only. DinnerMath provides general portion and cost estimates based on USDA FoodData Central guidelines, catering standards, and typical averages. Results depend on the information you enter. DinnerMath is not responsible for purchasing decisions, food safety, or outcomes based on these estimates. (c) 2025 DinnerMath. All rights reserved.
+      Planning estimates only. Confirm with your retailer and adjust for your crowd. DinnerMath is not responsible for decisions, purchases, or outcomes based on these estimates. (c) 2025 DinnerMath. All rights reserved.
     </footer>
   </main>
 
@@ -157,3 +169,4 @@
   </script>
 </body>
 </html>
+
