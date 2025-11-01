@@ -1,201 +1,167 @@
-<!doctype html>
+```html
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="dm-skin" content="editorial-premium-v1.0">
+  <title>Beef Brisket Quantity Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Compat meta tags -->
   <meta name="dm-category" content="meat">
   <meta name="dm-food" content="beef brisket">
   <meta name="dm-portion-spec" content="v1.8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Premium/editorial note: visual-only; logic comes from v1.8 bundle -->
+  <meta name="dm-teen-ae" content="0.80">
 
-  <!-- Base Editorial skin then Premium overlay -->
-  <link rel="stylesheet" href="/skins/editorial/editorial-v1.1.css">
-  <link rel="stylesheet" href="/skins/editorial/editorial-premium-v1.0.css">
+  <!-- Editorial + Premium skins (relative paths, no leading slash) -->
+  <link rel="stylesheet" href="./editorial-v1.1.css">
+  <link rel="stylesheet" href="./editorial-premium-v1.0.css">
 
-  <!-- Engine (unchanged) -->
+  <!-- Engine and runner (keep these so existing compute wiring continues) -->
   <script defer src="../../engine/engine.v2.js"></script>
   <script defer src="../../runner/runner.v2.js"></script>
-
-  <title>Beef Brisket Calculator</title>
 </head>
+
 <body class="dm-editorial">
-<main id="calculator" class="dm-grid">
+  <main id="calculator" class="dm-grid">
 
-  <!-- HEADER (dark variant) -->
-  <section class="card header header--dark">
-    <h1 class="calc-title">BEEF BRISKET CALCULATOR</h1>
-    <p class="lede">We estimate how much brisket to buy (planning amount) based on your crowd and plate context.</p>
-    <div class="hero" aria-hidden="true">
-      <img src="/skins/editorial/img/beef-brisket-slug-hero.jpg" alt="Sliced beef brisket on a board" loading="lazy">
-    </div>
-  </section>
+    <!-- Header -->
+    <section class="card header header--dark" data-section="header">
+      <picture class="hero">
+        <img src="./img/beef-brisket-slug-hero.jpg" alt="Sliced beef brisket on a board">
+      </picture>
+      <h1 class="title">Beef Brisket Calculator</h1>
+      <p class="lede">Plan how many pounds of brisket to buy for your crowd. Adjust guests, appetite, event length, and cut style.</p>
+    </section>
 
-  <!-- INPUTS -->
-  <section class="card">
-    <div class="step-label">Guests</div>
-    <div class="row">
-      <label>Adults <input id="adults" type="number" inputmode="numeric" value="5"></label>
-      <label>Teens <input id="teens" type="number" inputmode="numeric" value="0"></label>
-      <label>Children <input id="children" type="number" inputmode="numeric" value="0"></label>
-    </div>
+    <!-- Inputs -->
+    <section class="card inputs" data-section="inputs">
 
-    <div class="step-label">Appetite</div>
-    <label class="select">
-      <select id="appetite">
-        <option value="0.90">Light</option>
-        <option value="1.00" selected>Moderate</option>
-        <option value="1.15">Generous</option>
-      </select>
-    </label>
-    <small class="whisper">Allows for lighter, standard, or heartier portions.</small>
+      <!-- Guests -->
+      <div class="step" id="step-guests">
+        <div class="step-label">Guests</div>
+        <div class="fields three-up">
+          <label for="input-adults">Adults</label>
+          <input id="input-adults" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="10" data-hook="adults" />
+          <label for="input-teens">Teens</label>
+          <input id="input-teens" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="0" data-hook="teens" data-ae="0.80" />
+          <label for="input-children">Children</label>
+          <input id="input-children" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="0" data-hook="children" />
+        </div>
+        <div class="whisper">Teens count at 0.80 of an adult for portion math.</div>
+      </div>
 
-    <!-- Food-specific input: Cut style -->
-    <div class="step-label">Cut style</div>
-    <label class="select">
-      <select id="brisketCut">
-        <option value="0.60" selected>Flat cut (about 40 percent shrink)</option>
-        <option value="0.50">Point cut (about 50 percent shrink)</option>
-      </select>
-    </label>
-    <small class="whisper">We convert cooked ounces to raw pounds using the shrink for your cut.</small>
+      <!-- Appetite -->
+      <div class="step" id="step-appetite">
+        <div class="step-label">Appetite</div>
+        <div class="pills" role="group" aria-label="Appetite">
+          <button class="pill" data-hook="appetite" data-mult="0.90" aria-pressed="false">Light</button>
+          <button class="pill is-active" data-hook="appetite" data-mult="1.00" aria-pressed="true">Moderate</button>
+          <button class="pill" data-hook="appetite" data-mult="1.15" aria-pressed="false">Generous</button>
+        </div>
+        <div class="whisper">Choose how hearty portions should be.</div>
+      </div>
 
-    <!-- Role / Meal-Share -->
-    <div class="step-label">Role / Meal-Share</div>
-    <label class="select">
-      <select id="role">
-        <option value="1.00" selected>Main protein (only meat)</option>
-        <option value="0.60">One of two proteins</option>
-        <option value="0.45">One of several proteins</option>
-        <option value="0.35">Tasting / small share</option>
-      </select>
-    </label>
-    <small class="whisper">Plan for the share this item will cover on the plate.</small>
+      <!-- Event Length (Meat rules: visible) -->
+      <div class="step" id="step-event-length">
+        <div class="step-label">Event Length</div>
+        <div class="pills" role="group" aria-label="Event Length">
+          <button class="pill" data-hook="event-length" data-mult="0.75" aria-pressed="false">Short</button>
+          <button class="pill is-active" data-hook="event-length" data-mult="1.00" aria-pressed="true">Standard</button>
+          <button class="pill" data-hook="event-length" data-mult="1.25" aria-pressed="false">Long</button>
+          <button class="pill" data-hook="event-length" data-mult="1.50" aria-pressed="false">Extended</button>
+        </div>
+        <div class="whisper">Longer events typically need a bit more.</div>
+      </div>
 
-    <!-- Hidden Event Length per meat rules (1.00) -->
-    <input type="hidden" id="eventLength" value="1.00">
+      <!-- Cut Style (food-specific input) -->
+      <div class="step" id="step-cut-style">
+        <div class="step-label">Cut Style</div>
+        <div class="select-row">
+          <label for="cut-style">Choose cut</label>
+          <select id="cut-style" data-hook="cut-style">
+            <option value="packer" data-cut="packer">Whole packer</option>
+            <option value="flat" data-cut="flat">Flat (first cut)</option>
+            <option value="point" data-cut="point">Point</option>
+          </select>
+        </div>
+        <div class="whisper">We convert cooked ounces to raw pounds using the shrink for your cut.</div>
+      </div>
 
-    <!-- Leftovers removed from UI; fixed at 1.00 -->
-    <input type="hidden" id="leftovers" value="1.00">
-  </section>
+      <!-- Leftovers: removed (hybrid cushion handled in results note) -->
 
-  <!-- RESULTS -->
-  <section class="card results">
-    <div class="step-label">Estimate</div>
+    </section>
 
-    <div class="estimate-prose">
-      <h3 id="buy-line">Buy 0 lb</h3>
-      <p id="per-person-line">that allows for about 0 oz cooked per person.</p>
-      <p class="method-note">Totals reflect a slight rounding adjustment for realistic portions.</p>
-    </div>
+    <!-- Pricing (optional, appears before Results per this page order spec) -->
+    <section class="card pricing" data-section="pricing">
+      <div class="step-label">Pricing</div>
+      <div class="fields three-up">
+        <label for="price-per-lb">Unit price ($/lb)</label>
+        <input id="price-per-lb" inputmode="decimal" autocomplete="off" value="6.99" data-hook="price-per-lb" />
+        <label for="sales-tax">Tax %</label>
+        <input id="sales-tax" inputmode="decimal" autocomplete="off" value="0" data-hook="price-tax" />
+        <label for="fees">Fees ($)</label>
+        <input id="fees" inputmode="decimal" autocomplete="off" value="0" data-hook="price-fees" />
+      </div>
+      <div class="whisper">Pricing is optional and for planning only.</div>
+    </section>
 
-    <!-- Inputs summary (affirmation) -->
-    <div class="inputs-summary" id="inputs-summary">
-      <!-- chips injected by script -->
-    </div>
-  </section>
+    <!-- Results -->
+    <section class="card results" data-section="results">
+      <div class="summary">
+        <div class="from-line" id="affirm-line">
+          Based on your guests, appetite, event length, and cut style:
+        </div>
+        <div class="big-number">
+          <span id="result-total-raw-lb" data-hook="result-total-raw-lb">0</span>
+          <span class="unit">lb raw brisket</span>
+        </div>
+        <div class="sub-numbers">
+          <div><span id="result-total-cooked-oz" data-hook="result-total-cooked-oz">0</span> oz cooked total</div>
+          <div><span id="result-per-person-cooked-oz" data-hook="result-per-person-cooked-oz">0</span> oz cooked per person</div>
+          <div class="price" id="result-price" data-hook="result-price">$0.00 estimated total</div>
+        </div>
+        <div class="method-note" id="rounding-note">
+          Totals reflect a slight rounding adjustment for realistic portions.
+        </div>
+      </div>
+      <!-- Optional: print button hook -->
+      <div class="actions">
+        <button class="button" data-hook="print">Print results</button>
+      </div>
+    </section>
 
-  <!-- PRICING (optional) -->
-  <section class="card pricing">
-    <div class="step-label">Pricing (optional)</div>
-    <div class="row">
-      <label>Price per lb <input id="pricePerLb" type="number" inputmode="decimal" step="0.01" placeholder="0.00"></label>
-      <label>Tax % <input id="taxPct" type="number" inputmode="decimal" step="0.1" value="0"></label>
-      <label>Fees % <input id="feePct" type="number" inputmode="decimal" step="0.1" value="0"></label>
-    </div>
-    <div id="pricing-output"></div>
-  </section>
+    <!-- Finder -->
+    <section class="card finder" data-section="finder">
+      <div class="step-label">Finder</div>
+      <div class="finder-actions">
+        <a class="button primary" data-hook="finder-primary" href="#" rel="noopener">Find brisket near me</a>
+        <div class="links">
+          <a data-hook="finder-secondary" href="#" rel="noopener">Seafood markets</a>
+          <a data-hook="finder-tertiary" href="#" rel="noopener">Grocery stores</a>
+        </div>
+      </div>
+      <div class="whisper">Opens search results in a new tab.</div>
+    </section>
 
-  <!-- FINDER -->
-  <section class="card finder">
-    <div class="step-label">Finder</div>
-    <button class="btn-primary" id="finderBtn" type="button">Find brisket near me</button>
-    <div class="links">
-      <a href="https://www.google.com/maps/search/butcher+shop+near+me" target="_blank" rel="noopener">Butcher shops</a>
-      <a href="https://www.google.com/maps/search/grocery+store+near+me" target="_blank" rel="noopener">Grocery stores</a>
-    </div>
-  </section>
+    <!-- Legal Footer -->
+    <footer class="legal" data-section="legal">
+      Use for planning only. DinnerMath provides general portion and cost estimates based on USDA FoodData Central guidelines, catering standards, and typical averages. Results depend on the information you enter. DinnerMath is not responsible for purchasing decisions, food safety, or outcomes based on these estimates. (c) 2025 DinnerMath. All rights reserved.
+    </footer>
 
-  <!-- LEGAL FOOTER -->
-  <section class="card">
-    <p class="legal">
-      Planning estimates only. Confirm with your retailer and adjust for your crowd.
-      DinnerMath is not responsible for decisions, purchases, or outcomes based on these estimates.
-      (c) 2025 DinnerMath. All rights reserved.
-    </p>
-  </section>
-</main>
+  </main>
 
-<script>
-/* Minimal glue to keep behavior consistent without touching your engine:
-   - sets defaults the engine expects
-   - builds the estimate prose + inputs summary chips
-   Assumes engine.v2 calculates total raw pounds into window.dmTotalRawLb and cooked oz per person into window.dmCookedOzPerPerson.
-*/
-
-/* Select-all on focus for counts */
-["adults","teens","children"].forEach(id=>{
-  const el=document.getElementById(id);
-  el.addEventListener("focus",()=>{ el.select(); });
-  el.addEventListener("click",()=>{ el.select(); });
-});
-
-/* Fake engine hooks (replace with your real bindings if needed) */
-function readAE(){
-  const a=+adults.value||0, t=+teens.value||0, c=+children.value||0;
-  return a + t*0.80 + c*0.60; /* Teen=0.80 lock */
-}
-
-/* Simple demo compute so the page renders; your engine should overwrite these values */
-function compute(){
-  const ae=readAE();
-  const baselineCookedOzPerAdult=4.0; /* spec-aligned cooked baseline */
-  const appetite=+appetite.value;
-  const role=+role.value;
-  const cutYield=+brisketCut.value;  /* e.g., 0.60 for flat */
-  const cookedTotalOz = ae * baselineCookedOzPerAdult * appetite * role;
-  const rawLb = (cookedTotalOz / 16) / cutYield;
-
-  /* small hybrid rounding bias for realism: add 0.025 lb per AE (cap modestly) */
-  const hybridExtra = Math.min(ae*0.025, 5); /* cap +5 lb */
-  const totalRawLb = Math.max(0, rawLb + hybridExtra/16);
-
-  window.dmTotalRawLb = totalRawLb;
-
-  /* cooked per person back out for prose */
-  window.dmCookedOzPerPerson = baselineCookedOzPerAdult * appetite * role;
-
-  render(totalRawLb);
-}
-
-function fmtLb(x){ return (Math.round(x*100)/100).toFixed(2); }
-
-function render(totalRawLb){
-  document.getElementById("buy-line").textContent = "Buy " + fmtLb(totalRawLb) + " lb";
-  document.getElementById("per-person-line").textContent =
-    "that allows for about " + (Math.round(window.dmCookedOzPerPerson*10)/10) + " oz cooked per person.";
-
-  /* inputs summary chips */
-  const chips=[];
-  const totalGuests = (+adults.value||0)+(+teens.value||0)+(+children.value||0);
-  chips.push(totalGuests + " guests total");
-  chips.push(role.options[role.selectedIndex].text.toLowerCase());
-  chips.push(appetite.options[appetite.selectedIndex].text.toLowerCase() + " appetite");
-  chips.push(("cut: "+ brisketCut.options[brisketCut.selectedIndex].text.toLowerCase()));
-  const wrap=document.getElementById("inputs-summary");
-  wrap.innerHTML="";
-  chips.forEach(t=>{
-    const span=document.createElement("span");
-    span.className="chip"; span.textContent=t;
-    wrap.appendChild(span);
-  });
-}
-
-/* Bind */
-["adults","teens","children","appetite","role","brisketCut"].forEach(id=>{
-  document.getElementById(id).addEventListener("input",compute);
-  document.getElementById(id).addEventListener("change",compute);
-});
-compute();
-</script>
+  <!-- Minimal glue for select-all behavior on focus/click; safe with engine -->
+  <script>
+    (function () {
+      var selects = ["input-adults","input-teens","input-children","price-per-lb","sales-tax","fees"];
+      selects.forEach(function(id){
+        var el = document.getElementById(id);
+        if(!el) return;
+        function selAll(){ try { el.select(); } catch(e){} }
+        el.addEventListener("focus", selAll);
+        el.addEventListener("click", selAll);
+      });
+    })();
+  </script>
 </body>
 </html>
