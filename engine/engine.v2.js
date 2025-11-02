@@ -1,176 +1,97 @@
-/* DinnerMath engine v2
-   File: /engine/engine.v2.js
-   Purpose: shared behaviors + ladders + compute pipeline for Editorial Skin v1.1
-   Notes:
-   - ASCII only
-   - No HTML in this file
-   - Calculator pages can supply either window.DM_COMPUTE(ctx) and window.DM_RENDER(out),
-     OR a legacy window.compute(ctx). If both exist, DM_COMPUTE wins.
-*/
-(function () {
+/* DinnerMath engine v2 (global refactor harness)
+   Delegates compute/render to per-calculator CALC_CONFIG hooks.
+   Requires engine-utils.js loaded first. No CSS or class changes. ASCII only. */
+
+(function(global){
   "use strict";
 
-  // ---------- Helpers ----------
-  const $  = (s, r = document) => r.querySelector(s);
-  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-  const el = (t, c) => { const n = document.createElement(t); if (c) n.className = c; return n; };
+  // Helpers
+  function $(id){ return document.getElementById(id); }
+  function N(v,d){ const n = parseFloat(v); return isFinite(n)? n : (d||0); }
+  function money(n){ return (isFinite(n) && n>0) ? ("$" + n.toFixed(2)) : "$—"; }
 
-  const pow10 = n => Math.pow(10, n);
-  const fmtNum = (n, d = 2) => {
-    if (!isFinite(n)) return "";
-    const s = (Math.round(n * pow10(d)) / pow10(d)).toFixed(d);
-    return String(s).replace(/\.?0+$/, "");
-  };
-  const money = (n) => isFinite(n) ? "$" + fmtNum(n, 2) : "$-";
-  const roundTo = (n, step = 0.25, mode = "nearest") => {
-    if (!isFinite(n)) return 0;
-    if (mode === "up")   return Math.ceil(n / step) * step;
-    if (mode === "down") return Math.floor(n / step) * step;
-    return Math.round(n / step) * step;
-  };
-
-  // ---------- Locked ladders (v1.8) ----------
-  const APPETITE = { Light: 0.90, Moderate: 1.00, Generous: 1.15 };
-  const EVENT_LENGTH = { Short: 0.75, Standard: 1.00, Long: 1.25, Extended: 1.50 };
-  // Category wording varies in UI; values are stable
-  const ROLE_MEAL_SHARE = { Full: 1.00, Major: 0.60, Supporting: 0.45, Small: 0.35 };
-  const LEFTOVERS = {
-    mains: { None: 1.00, Some: 1.10, Plenty: 1.20 },
-    desserts: { None: 1.00, Some: 1.05, Plenty: 1.10 }
-  };
-
-  // ---------- Input wiring ----------
-  function applyNumericOnly(input) {
-    if (!input) return;
-    input.setAttribute("inputmode", "numeric");
-    input.setAttribute("pattern", "[0-9]*");
-    input.addEventListener("input", () => {
-      // strip non-digits
-      const cleaned = input.value.replace(/[^\d]/g, "");
-      if (cleaned !== input.value) input.value = cleaned;
+  // Strong select-all on focus/click for numeric inputs
+  function enableSelectAll(ids){
+    (ids||[]).forEach(id=>{
+      const el = $(id); if(!el) return;
+      ["focus","click"].forEach(evt=>el.addEventListener(evt,()=>{ try{ el.select(); }catch(_){ /* no-op */ } }));
     });
   }
 
-  function applySelectAllStrong(input) {
-    if (!input) return;
-    const selectAll = () => { try { input.select(); } catch (_) {} };
-    input.addEventListener("focus", selectAll);
-    input.addEventListener("click", selectAll);
-  }
-
-  function wireGuestInputs(ids) {
-    ["adults", "teens", "children"].forEach((k) => {
-      const node = $("#" + ids[k]);
-      applyNumericOnly(node);
-      applySelectAllStrong(node);
+  function attachInputListeners(root, onChange){
+    const scope = root || document;
+    const handler = ()=>{ try{ onChange(); }catch(e){ /* no-op */ } };
+    scope.querySelectorAll("input, select").forEach(el=>{
+      el.addEventListener("input", handler);
+      el.addEventListener("change", handler);
     });
   }
 
-  // ---------- Context collection ----------
-  function getValueFromSelect(idOrNode, fallback) {
-    const node = typeof idOrNode === "string" ? $("#" + idOrNode) : idOrNode;
-    if (!node) return fallback;
-    const raw = node.value;
-    const asNum = Number(raw);
-    return isFinite(asNum) && raw !== "" ? asNum : fallback;
-  }
-
-  function parseIntSafe(nodeOrId, fallback) {
-    const node = typeof nodeOrId === "string" ? $("#" + nodeOrId) : nodeOrId;
-    if (!node) return fallback;
-    const n = parseInt(node.value, 10);
-    return isFinite(n) ? n : fallback;
-    }
-
-  function collectContext(opts) {
-    const ids = opts.ids || {};
-    const category = opts.category || "mains"; // "mains" or "desserts"
-
-    const A = parseIntSafe(ids.adults || "adults", 0);
-    const T = parseIntSafe(ids.teens || "teens", 0);
-    const C = parseIntSafe(ids.children || "children", 0);
-
-    // These selects should store numeric values matching the ladders
-    const appetite = getValueFromSelect(ids.appetite || "appetite", 1.00);
-    const role     = getValueFromSelect(ids.role || "role", 1.00);
-    const length   = getValueFromSelect(ids.length || "length", 1.00);
-    const leftovers = getValueFromSelect(ids.leftovers || "leftovers", 1.00);
-
-    // Any calculator-specific extras (ex: cut yield) can be fetched here if provided
-    // Example ID: "cutYield" holding a decimal like 0.60 for 40 percent shrink
-    const cutYield = getValueFromSelect(ids.cutYield || "cutYield", 1.00);
-
-    const guests = { adults: A, teens: T, children: C, total: A + T + C };
-
-    return {
-      guests,
-      factors: {
-        appetite,
-        role,
-        length,
-        leftovers,
-        cutYield
-      },
-      ladders: { APPETITE, EVENT_LENGTH, ROLE_MEAL_SHARE, LEFTOVERS },
-      category,
-      util: { fmtNum, money, roundTo, el, $, $$ }
-    };
-  }
-
-  // ---------- Main boot / pipeline ----------
-  function triggerCompute(ctx) {
-    // New-style
-    if (typeof window.DM_COMPUTE === "function") {
-      const out = window.DM_COMPUTE(ctx) || {};
-      if (typeof window.DM_RENDER === "function") window.DM_RENDER(out, ctx);
+  function run(){
+    const C = global.CALC_CONFIG || {};
+    if(typeof EngineUtils === "undefined"){
+      console.error("EngineUtils not found. Load engine-utils.js first.");
       return;
     }
-    // Legacy fallback
-    if (typeof window.compute === "function") {
-      window.compute(ctx);
-      return;
+
+    // Select-all handler as requested in project locks
+    enableSelectAll(C.selectAllIds || []);
+
+    // Optional calculator-specific init before matrix
+    if(typeof C.init === "function"){ try{ C.init(); }catch(_){ } }
+
+    // Apply inclusion matrix and pricing isolation
+    EngineUtils.applyInclusionMatrix(C.inclusion || {}, C.idMap || {});
+    EngineUtils.pricingIsolationGuard({ pricingSectionSelector: C.pricingSectionSelector || "section.pricing" });
+
+    // Initial relabel of steps
+    EngineUtils.relabelSteps();
+
+    // Render pipeline
+    function render(){
+      if(typeof C.compute !== "function" || typeof C.onRender !== "function"){
+        console.error("CALC_CONFIG must provide compute(stateHelpers) and onRender(state).");
+        return;
+      }
+      const state = C.compute({ $, N, money });
+      C.onRender(state, { $, N, money });
+      EngineUtils.updateChips(state, {
+        outChipsId: C.outChipsId || "outChips",
+        inRoleId: C.inRoleId || "inRole",
+        inAppetiteId: C.inAppetiteId || "inAppetite",
+        foodChipIds: C.foodChipIds || []
+      });
+      // Relabel after any visibility toggles that happened inside onRender
+      EngineUtils.relabelSteps();
     }
-    console.warn("DinnerMath engine: no compute function found");
+
+    // Attach listeners
+    attachInputListeners(document.querySelector("main#calculator"), render);
+
+    // Optional reset button
+    if(C.resetButtonId){
+      const b = $(C.resetButtonId);
+      if(b && typeof C.onReset === "function"){
+        b.addEventListener("click", ()=>{ try{ C.onReset(); render(); }catch(_){ } });
+      }
+    }
+
+    // Compute once on load
+    render();
+
+    // Expose for debugging
+    global.Engine = { run, render, $, N, money };
   }
 
-  function init(opts = {}) {
-    const ids = Object.assign({
-      adults: "adults",
-      teens: "teens",
-      children: "children",
-      appetite: "appetite",
-      role: "role",
-      length: "length",
-      leftovers: "leftovers",
-      cutYield: "cutYield"
-    }, opts.ids || {});
-
-    // Strong wiring on guest inputs
-    wireGuestInputs(ids);
-
-    // Recompute on any change inside #calculator or body if not present
-    const root = $("#calculator") || document.body;
-    root.addEventListener("change", onChange, true);
-    root.addEventListener("input", onChange, true);
-
-    // Initial compute after DOM is ready
-    setTimeout(() => onChange(), 0);
-
-    function onChange() {
-      const ctx = collectContext({ ids, category: opts.category || "mains" });
-      window.DM_CONTEXT = ctx; // exposed for debugging
-      triggerCompute(ctx);
-    }
+  // Auto-run on DOM ready
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", run);
+  }else{
+    run();
   }
 
-  // ---------- Public API ----------
-  window.DM = Object.freeze({
-    init,
-    collectContext,
-    fmtNum,
-    money,
-    roundTo,
-    ladders: { APPETITE, EVENT_LENGTH, ROLE_MEAL_SHARE, LEFTOVERS }
-  });
+  // Also expose helpers
+  global.Engine = Object.assign((global.Engine||{}), { run, $, N, money });
 
-})();
+})(window);
+
