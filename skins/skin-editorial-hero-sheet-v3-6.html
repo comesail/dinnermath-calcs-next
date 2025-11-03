@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{FOOD NAME} QUANTITY CALCULATOR — HOW MUCH YOU'LL NEED</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg-page:#FBFBFB;--bg-card:#FFFFFF;--text-strong:#111;--text:#2B2B2B;--line:#EAEAEA;--radius-lg:22px;--shadow:0 8px 28px rgba(0,0,0,.08);--focus:#1C7ED6;--gutter:#1A4FA3}
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg-page);color:var(--text);font-family:"Outfit",system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial,sans-serif;font-weight:300;line-height:1.5}
+    .container{max-width:1080px;margin:0 auto;padding:28px}
+    .sheet{position:relative;background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:28px 28px 24px 96px;overflow:hidden}
+    @media (max-width:720px){ .sheet{padding:22px 18px 18px 54px} }
+    .hero{display:grid;grid-template-columns:1fr;gap:18px;align-items:center;margin-bottom:8px}
+    .hero h1{margin:0 0 10px 0;font-size:38px;line-height:44px;color:var(--text-strong);font-weight:600;letter-spacing:.1px;text-transform:uppercase}
+    .hero .lede{margin:0;color:#444;font-size:17px;line-height:25px;font-weight:300}
+    .hero-media{width:100%;aspect-ratio:4/3;background:#F3F3F3;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+    .hero-media img{width:100%;height:100%;object-fit:cover;display:block}
+    .hero-media .ph{font-size:13px;color:#666;padding:12px;text-align:center}
+    @media (min-width:940px){.hero{grid-template-columns:1.25fr .95fr}.hero-media{margin-right:-10px}}
+    .step{position:relative;padding:56px 0 26px 0}
+    .step + .step{margin-top:6px}
+    .step-glyph{position:absolute;left:28px;top:-2px;font-family:"Outfit", sans-serif;font-weight:200;font-size:98px;line-height:1;letter-spacing:.01em;color:rgba(26,79,163,.26);user-select:none;pointer-events:none}
+    #step-food-specific .step-glyph{top:-2px} #results .step-glyph{top:-6px} #pricing .step-glyph{top:-6px} #finder .step-glyph{top:-6px}
+    @media (max-width:720px){.step{padding:42px 0 22px 0}.step-glyph{left:10px;font-size:62px}}
+    .row{display:grid;grid-template-columns:1fr;gap:14px}
+    @media (min-width:640px){ .row.cols-2{grid-template-columns:repeat(2,1fr)} .row.cols-3{grid-template-columns:repeat(3,1fr)} }
+    label{font-size:14px;color:#222;margin-bottom:6px;display:block}
+    input[type="number"],select{width:100%;padding:12px 14px;border:1px solid #E2E2E2;border-radius:12px;background:#FFF;font-size:16px;line-height:24px;max-width:220px}
+    input[type="number"]:focus,select:focus,button:focus{outline:2px solid var(--focus);outline-offset:2px}
+    .ml10{margin-left:10px}
+    .presets{display:flex;align-items:center;gap:12px;margin-top:8px;font-size:13px;color:#555;flex-wrap:wrap}
+    .preset-link{border-bottom:1px solid transparent;cursor:pointer}
+    .preset-link:hover{border-bottom:1px solid #999}
+    .chips{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 14px 0}
+    .chip{border:1px solid #E6E6E6;border-radius:9999px;padding:6px 10px;font-size:13px;line-height:18px;color:#444;background:#FFF}
+    .results-figure{font-size:36px;line-height:40px;color:#111;margin:6px 0 6px 0;font-weight:400}
+    .results-sub{font-size:14px;color:#555;margin:0 0 10px 0}
+    .method-note{font-size:13px;line-height:18px;color:#666;margin-top:8px}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border:1px solid #E6E6E6;border-radius:9999px;background:transparent;cursor:pointer;font-size:14px;text-decoration:none}
+    .btn.primary{color:#111;border-color:#111}
+    .btn.blue{color:#1A4FA3;border-color:#B9D1FF}
+    .btn.orange{color:#C06A00;border-color:#FFD4AD}
+    .btn.sm{padding:6px 10px;font-size:13px}
+    footer.disclaimer{margin-top:22px;font-size:12px;line-height:18px;color:#666;text-align:center}
+  </style>
+</head>
+<body>
+  <main class="container" aria-label="DinnerMath Calculator">
+    <section class="sheet" id="calc-sheet">
+      <header class="hero" aria-label="Header">
+        <div>
+          <h1>{FOOD NAME} QUANTITY CALCULATOR — HOW MUCH YOU'LL NEED</h1>
+          <p class="lede">Enter guests and settings (or tap a quick preset). We will estimate how many {display.primaryLabel} you will need (planning estimate).</p>
+        </div>
+        <figure class="hero-media" aria-label="Hero image">
+          <img src="./editorial/img/beef-brisket-slug-hero.jpg" alt="Beef brisket on a board"
+               onerror="this.remove();document.getElementById('hero-ph').style.display='block';" />
+          <div id="hero-ph" class="ph" style="display:none">Hero image placeholder. Put a 4:3 image at skins/editorial/img/hero-placeholder.jpg</div>
+        </figure>
+      </header>
+
+      <section class="step" id="step-guests" aria-label="Step 1: Guests">
+        <span class="step-glyph" aria-hidden="true">01</span>
+        <div class="row cols-3">
+          <div style="grid-column:1 / -1;"><label style="font-weight:400;">How many people are you serving?</label></div>
+          <div>
+            <label for="adults">Adults</label>
+            <input id="adults" name="adults" type="number" min="0" inputmode="numeric" placeholder="0" value="5" autofocus />
+            <div class="presets" aria-label="Quick presets">
+              <span>Quick presets:</span>
+              <a class="preset-link" data-total="10">10</a>
+              <a class="preset-link" data-total="25">25</a>
+              <a class="preset-link" data-total="50">50</a>
+              <a class="preset-link" data-total="100">100</a>
+            </div>
+          </div>
+          <div class="ml10">
+            <label for="teens">Teens</label>
+            <input id="teens" name="teens" type="number" min="0" inputmode="numeric" placeholder="0" />
+          </div>
+          <div class="ml10">
+            <label for="children">Children</label>
+            <input id="children" name="children" type="number" min="0" inputmode="numeric" placeholder="0" />
+          </div>
+        </div>
+      </section>
+
+      <section class="step" id="step-appetite" aria-label="Step 2: Appetite">
+        <span class="step-glyph" aria-hidden="true">02</span>
+        <div class="row cols-3">
+          <div>
+            <label for="appetite">How generous would you like the portions to be?</label>
+            <select id="appetite" name="appetite">
+              <option value="light">Light</option>
+              <option value="moderate" selected>Moderate</option>
+              <option value="generous">Generous</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="step" id="step-role" aria-label="Step 3: Role or Meal Share">
+        <span class="step-glyph" aria-hidden="true">03</span>
+        <div class="row cols-1">
+          <div>
+            <label for="role">Will this be the only meat or seafood you’re serving?</label>
+            <select id="role" name="role">
+              <option value="main" selected>This is the only meat or seafood being served — Allows for full servings — usually 3 to 4 oz cooked per person.</option>
+              <option value="alongside">This will be served alongside another meat or seafood — Allows for smaller servings — 2 to 3 oz cooked per person.</option>
+              <option value="small">I only want to serve a small portion of meat or seafood — Allows for a small portion — 1 1/2 to 2 oz cooked per person.</option>
+              <option value="tasting">This is just a tasting or small bite of [food name] — Allows for a tiny portion — 1 oz cooked per person.</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="step" id="step-food-specific" aria-label="Step 4: Food-specific inputs">
+        <span class="step-glyph" aria-hidden="true">04</span>
+        <div class="row cols-2" id="food-controls"></div>
+      </section>
+
+      <section class="step" id="results" aria-live="polite" aria-label="Results">
+        <span class="step-glyph" aria-hidden="true">R</span>
+        <div class="chips" id="chips">
+          <span class="chip" id="chipGuests">Guests: 5/0/0</span>
+          <span class="chip" id="chipAppetite">Appetite: Moderate</span>
+          <span class="chip" id="chipRole">Role: Main</span>
+        </div>
+        <div class="results-figure" id="resultPrimary">0.0 lb</div>
+        <p class="results-sub" id="resultSummary">Estimated from 5 guests.</p>
+        <p class="method-note" id="methodNote">The estimate above includes a small built-in cushion, so additional rounding up is generally unnecessary.</p>
+      </section>
+
+      <section class="step" id="pricing" aria-label="Pricing (optional)">
+        <span class="step-glyph" aria-hidden="true">$</span>
+        <div class="row cols-3">
+          <div style="grid-column:1/-1;"><label style="font-weight:400">Pricing (optional)</label></div>
+          <div>
+            <label for="pricePerUnit">Price per unit</label>
+            <input id="pricePerUnit" name="pricePerUnit" type="number" min="0" step="0.01" placeholder="0.00" />
+          </div>
+          <div>
+            <label for="taxPercent">Sales tax %</label>
+            <input id="taxPercent" name="taxPercent" type="number" min="0" step="0.01" placeholder="0" />
+          </div>
+          <div>
+            <label for="fees">Fees or extras</label>
+            <input id="fees" name="fees" type="number" min="0" step="0.01" placeholder="0.00" />
+          </div>
+        </div>
+        <div class="actions">
+          <a class="btn primary" role="button">Estimate total cost</a>
+        </div>
+      </section>
+
+      <section class="step" id="finder" aria-label="Finder">
+        <span class="step-glyph" aria-hidden="true">F</span>
+        <div class="actions">
+          <a class="btn primary" href="#" role="button">Find item near me</a>
+          <a class="btn blue sm" href="#" role="button">Seafood markets</a>
+          <a class="btn orange sm" href="#" role="button">Wholesale clubs</a>
+        </div>
+      </section>
+
+      <footer class="disclaimer" aria-label="Disclaimer">
+        Use for planning only. DinnerMath provides general portion and cost estimates based
+        on USDA FoodData Central guidelines, catering standards, and typical averages.
+        Results depend on the information you enter. DinnerMath is not responsible for
+        purchasing decisions, food safety, or outcomes based on these estimates. © 2025
+        DinnerMath. All rights reserved.
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    document.addEventListener("click", function(e){
+      const link = e.target.closest(".preset-link"); if (!link) return;
+      const total = Number(link.getAttribute("data-total") || 0);
+      var a = document.getElementById("adults"), t = document.getElementById("teens"), c = document.getElementById("children");
+      if (!a || !t || !c) return;
+      a.value = total; t.value = 0; c.value = 0; a.focus();
+      ["input","change"].forEach(evt => a.dispatchEvent(new Event(evt, {bubbles:true})));
+    });
+    function updateChipsFromInputs(){
+      var A = Number(document.getElementById("adults")?.value || 0);
+      var T = Number(document.getElementById("teens")?.value || 0);
+      var C = Number(document.getElementById("children")?.value || 0);
+      const g = document.getElementById("chipGuests"); if (g) g.textContent = "Guests: " + A + "/" + T + "/" + C;
+      const rs = document.getElementById("resultSummary"); if (rs) rs.textContent = "Estimated from " + A + " guests.";
+    }
+    ["input","change"].forEach(evt => {
+      ["adults","teens","children"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener(evt, updateChipsFromInputs);
+      });
+    });
+    document.addEventListener("DOMContentLoaded", updateChipsFromInputs);
+  </script>
+
+  <script src="../engine/engine.v2.js"></script>
+  <script src="../runner/runner.v2.js"></script>
+</body>
+</html>
