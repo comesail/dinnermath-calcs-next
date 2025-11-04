@@ -1,1 +1,74 @@
-ok
+{
+  "food_name": "Beef Brisket",
+  "category": "meat",
+  "primary_unit": "raw_lb",
+  "rounding_rule": "0.25_lb",
+  "notes": "v2.1 Hybrid: no leftovers control; event length hidden for Meat; dynamic steps; pricing isolated.",
+  "ae_ladder": { "adult": 1.00, "teen": 0.80, "child": 0.60 },
+
+  "appetite": {
+    "label": "How generous would you like the portions to be?",
+    "options": [
+      { "id": "light",    "label": "Light",    "whisper": "Allows for lighter portions.",   "value": 0.90 },
+      { "id": "moderate", "label": "Moderate", "whisper": "Allows for standard portions.",  "value": 1.00, "default": true },
+      { "id": "generous", "label": "Generous", "whisper": "Allows for heartier portions.", "value": 1.15 }
+    ]
+  },
+
+  "role_meal_share": {
+    "label": "Will this be the only meat or seafood you are serving?",
+    "options": [
+      { "id": "only",      "label": "Only meat/seafood",                 "whisper": "Usually 3 to 4 oz cooked per person.", "value": 1.00, "default": true },
+      { "id": "alongside", "label": "Alongside another meat/seafood",    "whisper": "About 2 to 3 oz cooked per person.",   "value": 0.60 },
+      { "id": "small",     "label": "Small portion",                     "whisper": "About 1.5 to 2 oz cooked per person.", "value": 0.45 },
+      { "id": "tasting",   "label": "Tasting or small bite",             "whisper": "About 1 oz cooked per person.",        "value": 0.35 }
+    ]
+  },
+
+  "baseline": {
+    "adult_cooked_oz": 3.5,
+    "ladder": { "teen": 0.80, "child": 0.60 }
+  },
+
+  "controls": [
+    {
+      "id": "cut",
+      "type": "select",
+      "label": "Cut",
+      "options": [
+        { "id": "flat",  "label": "Flat cut",  "whisper": "Leaner, higher yield.", "chips_text": "Cut: flat",  "default": true },
+        { "id": "point", "label": "Point cut", "whisper": "Fattier, lower yield.", "chips_text": "Cut: point" }
+      ]
+    }
+  ],
+
+  "purchase_form": {
+    "enabled": true,
+    "label": "Are you cooking the brisket or buying it already prepared?",
+    "options": [
+      { "id": "raw",    "label": "Raw (cooking it)",        "chips_text": "Form: cooking it",       "use_yield": true,  "default": true },
+      { "id": "cooked", "label": "Cooked (already prepared)","chips_text": "Form: already prepared", "use_yield": false }
+    ]
+  },
+
+  "yields": {
+    "raw_to_cooked": {
+      "flat":  { "value": 0.60, "needs_review": true, "notes": "Default; replace with spine-confirmed value if different." },
+      "point": { "value": 0.55, "needs_review": true, "notes": "Default; replace with spine-confirmed value if different." }
+    }
+  },
+
+  "results": {
+    "label": "Estimated number of pounds to buy",
+    "second_line_template": "Estimated from {guests} guests — {role}, {appetite}{cut}.",
+    "extra_line_template": "About {cooked_lb} cooked pounds.",
+    "method_note": "Totals reflect a small built-in planning allowance."
+  },
+
+  "finder": {
+    "button_text": "Find beef brisket near me",
+    "search_query": "beef brisket near me",
+    "pills": ["Butcher shops", "Grocery stores"]
+  }
+}
+
