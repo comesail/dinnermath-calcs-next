@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{FOOD NAME} Quantity Calculator — How Much You'll Need</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg-page:#FBFBFB;
+      --bg-card:#FFFFFF;
+      --text-strong:#111;
+      --text:#2B2B2B;
+      --line:#EAEAEA;
+      --radius-lg:22px;
+      --shadow:0 8px 28px rgba(0,0,0,.08);
+      --focus:#1C7ED6;
+      --gutter:#1A4FA3;
+      --gutter-faint: rgba(26,79,163,.26);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg-page);color:var(--text);font-family:"Outfit",system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial,sans-serif;font-weight:300;line-height:1.5}
+    .container{max-width:1080px;margin:0 auto;padding:12px 28px 28px}
+    .sheet{position:relative;background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:12px 28px 20px 84px;overflow:hidden}
+    @media (max-width:720px){ .sheet{padding:10px 18px 18px 56px} }
+
+    /* HERO */
+    .hero{display:grid;grid-template-columns:1fr;gap:12px;align-items:start;margin-bottom:6px}
+    .hero h1{margin:0 0 4px 0;line-height:1.12;color:var(--text-strong);text-align:center}
+    .hero .line1{font-weight:200;letter-spacing:.18em;font-size:30px;text-transform:uppercase}
+    .hero .line2{font-weight:600;letter-spacing:.02em;font-size:36px}
+    .hero .lede{margin:6px 0 0;color:#444;font-size:17px;line-height:25px;font-weight:300;text-align:center}
+    .hero-media{width:100%;aspect-ratio:3/4;background:#F3F3F3;border:1px solid var(--line);border-radius:0;overflow:hidden}
+    .hero-media img{width:100%;height:100%;object-fit:cover;display:block}
+    .hero-media .ph{font-size:13px;color:#666;padding:12px;text-align:center}
+    @media (min-width:980px){
+      .hero{grid-template-columns:1.05fr .95fr;gap:18px;margin-bottom:0}
+      .hero :is(.line1,.line2,.lede){text-align:center}
+    }
+
+    /* STEPS + GUTTER NUMERALS */
+    .step{position:relative;padding:32px 0 22px 0;z-index:0}
+    .step *{position:relative;z-index:1}
+    .step + .step{margin-top:0}
+    .step-glyph{
+      position:absolute;left:14px;top:-6px;
+      font-family:"Outfit", sans-serif;font-weight:200;
+      font-size:98px;line-height:1;letter-spacing:.01em;
+      color:var(--gutter-faint);
+      user-select:none;pointer-events:none;
+      z-index:0;
+    }
+    #results .step-glyph{top:-6px}
+    #pricing .step-glyph{top:-6px}
+    @media (min-width:980px){
+      #step-guests{margin-top:-340px;}
+      #step-appetite{margin-top:-8px;}
+    }
+    @media (max-width:979.98px){
+      #step-guests{margin-top:4px;}
+    }
+    @media (max-width:720px){
+      .step{padding:26px 0 18px 0}
+      .step-glyph{left:8px;font-size:62px}
+    }
+
+    /* GRID + INPUTS */
+    .row{display:grid;grid-template-columns:1fr;gap:14px}
+    @media (min-width:640px){ .row.cols-2{grid-template-columns:repeat(2,1fr)} .row.cols-3{grid-template-columns:repeat(3,1fr)} }
+    label{font-size:14px;color:#222;margin-bottom:6px;display:block}
+    input[type="number"],select{padding:10px 12px;border:1px solid #E2E2E2;border-radius:12px;background:#FFF;font-size:16px;line-height:24px}
+    input[type="number"]{width:100%;max-width:200px}
+    #teens,#children{max-width:180px}
+    select{max-width:100%;background:#FFF}
+    input[type="number"]:focus,select:focus,button:focus{outline:2px solid var(--focus);outline-offset:2px}
+    .ml10{margin-left:10px}
+    .fit-select{display:inline-block;width:auto;min-width:320px;max-width:none;white-space:nowrap}
+
+    /* PRESETS */
+    .presets{display:flex;align-items:center;gap:12px;margin-top:8px;font-size:13px;color:#555;flex-wrap:wrap}
+    .preset-link{border-bottom:1px solid transparent;cursor:pointer}
+    .preset-link:hover{border-bottom:1px solid #999}
+
+    /* CHIPS + RESULTS */
+    .chips{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 14px 0}
+    .chip{border:1px solid #E6E6E6;border-radius:9999px;padding:6px 10px;font-size:13px;line-height:18px;color:#444;background:#FFF}
+    .results-figure{font-size:36px;line-height:40px;color:#111;margin:6px 0 6px 0;font-weight:400}
+    .method-note{font-size:13px;line-height:18px;color:#666;margin-top:8px}
+
+    /* FINDER PILLS */
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border:1px solid #E2E2E2;border-radius:9999px;background:transparent;cursor:pointer;font-size:14px;text-decoration:none}
+    .btn.primary{color:#111;border-color:#111}
+    .btn.blue{color:#1A4FA3;border-color:#B9D1FF}
+    .btn.orange{color:#C06A00;border-color:#FFD4AD}
+    .btn.sm{padding:6px 10px;font-size:13px}
+
+    /* DISCLAIMER */
+    footer.disclaimer{margin-top:22px;font-size:12px;line-height:18px;color:#666;text-align:center}
+
+    /* Map pin icon style */
+    .map-pin{position:absolute;left:14px;top:-6px;opacity:.26}
+    .map-pin svg{width:90px;height:90px;display:block}
+    @media (max-width:720px){ .map-pin{left:8px} .map-pin svg{width:58px;height:58px} }
+
+    /* ===== Stability Pack v1.0 ===== */
+    @media (min-width:980px){
+      #step-guests{
+        position: relative !important;
+        z-index: 20 !important;
+        margin-top: -340px !important;
+      }
+    }
+    #step-guests .row.cols-3{
+      column-gap: 14px !important;
+      grid-template-columns: 160px 140px 140px !important;
+      max-width: 500px !important;
+    }
+    #step-guests input[type="number"]{ max-width: 100% !important; }
+    #teens, #children{ max-width: 100% !important; }
+    #step-guests .ml10{ margin-left: 0 !important; }
+    #step-guests .presets{
+      flex-wrap: nowrap !important;
+      gap: 14px !important;
+      max-width: 500px !important;
+      position: relative !important;
+      z-index: 25 !important;
+    }
+    #step-guests .presets span,
+    #step-guests .presets a{ white-space: nowrap !important; }
+    @media (max-width:979.98px){
+      #step-guests{ margin-top: 4px !important; }
+      #step-guests .row.cols-3{ grid-template-columns: 1fr 1fr 1fr !important; max-width: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="container" aria-label="DinnerMath Calculator">
+    <section class="sheet" id="calc-sheet">
+
+      <!-- HERO -->
+      <header class="hero" aria-label="Header">
+        <div>
+          <h1>
+            <div class="line1">{FOOD NAME} Quantity Calculator</div>
+            <div class="line2">How Much You'll Need</div>
+          </h1>
+          <p class="lede">Enter guests and settings (or tap a quick preset). We will estimate how many pounds of raw brisket you will need (planning estimate).</p>
+        </div>
+        <figure class="hero-media" aria-label="Hero image">
+          <img src="./editorial/img/beef-brisket-slug-hero.jpg" alt="Beef brisket on a board"
+               onerror="this.style.display='none';document.getElementById('hero-ph').style.display='block';" />
+          <div id="hero-ph" class="ph" style="display:none">Hero image placeholder. Put a 3:4 image at skins/editorial/img/hero-placeholder.jpg</div>
+        </figure>
+      </header>
+
+      <!-- STEP 1: Guests -->
+      <section class="step" id="step-guests" aria-label="Step 1: Guests">
+        <span class="step-glyph" aria-hidden="true">01</span>
+        <div class="row cols-3">
+          <div style="grid-column:1 / -1;"><label style="font-weight:400;">How many people are you serving?</label></div>
+          <div>
+            <label for="adults">Adults</label>
+            <input id="adults" name="adults" type="number" min="0" inputmode="numeric" value="5" />
+            <div class="presets" aria-label="Quick presets">
+              <span>Quick presets:</span>
+              <a href="#" role="button"
+                 onclick="(function(){var a=document.getElementById('adults'),t=document.getElementById('teens'),c=document.getElementById('children');if(!a||!t||!c)return; a.value='10'; t.value='0'; c.value='0'; ['input','change'].forEach(function(evt){a.dispatchEvent(new Event(evt,{bubbles:true})); t.dispatchEvent(new Event(evt,{bubbles:true})); c.dispatchEvent(new Event(evt,{bubbles:true}));}); a.focus(); if(a.select) a.select();})(); return false;">10</a>
+              <a href="#" role="button"
+                 onclick="(function(){var a=document.getElementById('adults'),t=document.getElementById('teens'),c=document.getElementById('children');if(!a||!t||!c)return; a.value='25'; t.value='0'; c.value='0'; ['input','change'].forEach(function(evt){a.dispatchEvent(new Event(evt,{bubbles:true})); t.dispatchEvent(new Event(evt,{bubbles:true})); c.dispatchEvent(new Event(evt,{bubbles:true}));}); a.focus(); if(a.select) a.select();})(); return false;">25</a>
+              <a href="#" role="button"
+                 onclick="(function(){var a=document.getElementById('adults'),t=document.getElementById('teens'),c=document.getElementById('children');if(!a||!t||!c)return; a.value='50'; t.value='0'; c.value='0'; ['input','change'].forEach(function(evt){a.dispatchEvent(new Event(evt,{bubbles:true})); t.dispatchEvent(new Event(evt,{bubbles:true})); c.dispatchEvent(new Event(evt,{bubbles:true}));}); a.focus(); if(a.select) a.select();})(); return false;">50</a>
+              <a href="#" role="button"
+                 onclick="(function(){var a=document.getElementById('adults'),t=document.getElementById('teens'),c=document.getElementById('children');if(!a||!t||!c)return; a.value='100'; t.value='0'; c.value='0'; ['input','change'].forEach(function(evt){a.dispatchEvent(new Event(evt,{bubbles:true})); t.dispatchEvent(new Event(evt,{bubbles:true})); c.dispatchEvent(new Event(evt,{bubbles:true}));}); a.focus(); if(a.select) a.select();})(); return false;">100</a>
+            </div>
+          </div>
+          <div class="ml10">
+            <label for="teens">Teens</label>
+            <input id="teens" name="teens" type="number" min="0" inputmode="numeric" value="0" />
+          </div>
+          <div class="ml10">
+            <label for="children">Children</label>
+            <input id="children" name="children" type="number" min="0" inputmode="numeric" value="0" />
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 2: Appetite -->
+      <section class="step" id="step-appetite" aria-label="Step 2: Appetite">
+        <span class="step-glyph" aria-hidden="true">02</span>
+        <div class="row cols-3">
+          <div>
+            <label for="appetite">How generous would you like the portions to be?</label>
+            <select id="appetite" name="appetite" class="fit-select">
+              <option value="light">Light — plan a little less per person.</option>
+              <option value="moderate" selected>Moderate — a typical serving for most guests.</option>
+              <option value="generous">Generous — allows for heartier portions.</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 3: Role -->
+      <section class="step" id="step-role" aria-label="Step 3: Role or Meal Share">
+        <span class="step-glyph" aria-hidden="true">03</span>
+        <div class="row cols-1">
+          <div>
+            <label for="role">Will this be the only meat or seafood you’re serving?</label>
+            <select id="role" name="role" class="fit-select">
+              <option value="main" selected>This is the only meat or seafood being served — Allows for full servings — usually 3 to 4 oz cooked per person.</option>
+              <option value="alongside">This will be served alongside another meat or seafood — Allows for smaller servings — 2 to 3 oz cooked per person.</option>
+              <option value="small">I only want to serve a small portion of meat or seafood — Allows for a small portion — 1 1/2 to 2 oz cooked per person.</option>
+              <option value="tasting">This is just a tasting or small bite of [food name] — Allows for a tiny portion — 1 oz cooked per person.</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 4 placeholder -->
+      <section class="step" id="step-food-specific" aria-label="Step 4: Food-specific inputs">
+        <span class="step-glyph" aria-hidden="true">04</span>
+        <div class="row cols-2" id="food-controls"></div>
+      </section>
+
+      <!-- RESULTS -->
+      <section class="step" id="results" aria-live="polite" aria-label="Results">
+        <span class="step-glyph" aria-hidden="true">R</span>
+        <div class="chips" id="chips">
+          <span class="chip" id="chipGuests">Guests: 5/0/0</span>
+          <span class="chip" id="chipAppetite">Appetite: Moderate</span>
+          <span class="chip" id="chipRole">Role: Main</span>
+        </div>
+        <div class="results-figure" id="resultPrimary">0.0 lb</div>
+        <p class="method-note" id="methodNote">The estimate above includes a small built-in cushion, so additional rounding up is generally unnecessary.</p>
+      </section>
+
+      <!-- PRICING (optional, display-only for now) -->
+      <section class="step" id="pricing" aria-label="Pricing (optional)">
+        <span class="step-glyph" aria-hidden="true">$</span>
+        <div class="row cols-3">
+          <div style="grid-column:1/-1;"><label style="font-weight:400">Pricing (optional)</label></div>
+          <div>
+            <label for="pricePerUnit">Price per unit</label>
+            <input id="pricePerUnit" name="pricePerUnit" type="number" min="0" step="0.01" placeholder="0.00" />
+          </div>
+          <div>
+            <label for="taxPercent">Sales tax %</label>
+            <input id="taxPercent" name="taxPercent" type="number" min="0" step="0.01" placeholder="0" />
+          </div>
+          <div>
+            <label for="fees">Fees or extras</label>
+            <input id="fees" name="fees" type="number" min="0" step="0.01" placeholder="0.00" />
+          </div>
+        </div>
+        <div class="actions">
+          <a class="btn primary" role="button">Estimate total cost</a>
+        </div>
+      </section>
+
+      <!-- FINDER -->
+      <section class="step" id="finder" aria-label="Finder">
+        <div class="map-pin" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 22s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" stroke="var(--gutter)" stroke-opacity=".26" stroke-width="1.6" fill="none"/>
+            <circle cx="12" cy="10" r="2.6" stroke="var(--gutter)" stroke-opacity=".26" stroke-width="1.6" fill="none"/>
+          </svg>
+        </div>
+        <div class="actions" style="margin-left:0">
+          <a class="btn primary" href="#" role="button">Find item near me</a>
+          <a class="btn blue sm" href="#" role="button">Seafood markets</a>
+          <a class="btn orange sm" href="#" role="button">Wholesale clubs</a>
+        </div>
+      </section>
+
+      <!-- DISCLAIMER -->
+      <footer class="disclaimer" aria-label="Disclaimer">
+        Use for planning only. DinnerMath provides general portion and cost estimates based
+        on USDA FoodData Central guidelines, catering standards, and typical averages.
+        Results depend on the information you enter. DinnerMath is not responsible for
+        purchasing decisions, food safety, or outcomes based on these estimates. © 2025
+        DinnerMath. All rights reserved.
+      </footer>
+    </section>
+  </main>
+
+  <!-- ===== Self-contained inline logic (no external dependencies) ===== -->
+  <script>
+  (function(){
+    "use strict";
+    function $(id){ return document.getElementById(id); }
+    function N(v){ var n = parseFloat(v); return isFinite(n) ? n : 0; }
+
+    function selectAllOnFocus(id){
+      var el = $(id); if(!el) return;
+      function handler(){ try{ el.select(); }catch(e){} }
+      el.addEventListener("focus", handler);
+      el.addEventListener("click", handler);
+    }
+
+    function getInputs(){
+      return {
+        adults:   N($("adults")?.value),
+        teens:    N($("teens")?.value),
+        children: N($("children")?.value),
+        appetite: $("appetite")?.value || "moderate",
+        role:     $("role")?.value || "main"
+      };
+    }
+
+    function compute(){
+      var i = getInputs();
+      var appetiteMult = { light:0.90, moderate:1.00, generous:1.15 }[i.appetite] || 1.00;
+      var roleMult = { main:1.00, alongside:0.60, small:0.45, tasting:0.35 }[i.role] || 1.00;
+      var people = (i.adults * 1.0) + (i.teens * 0.75) + (i.children * 0.50);
+      var result = people * appetiteMult * roleMult * 0.5; // placeholder factor
+      return { guests: i.adults + i.teens + i.children, primaryValue: result, unit:"lb" };
+    }
+
+    function render(){
+      var state = compute();
+      var chipGuests = document.getElementById("chipGuests");
+      var chipAppetite = document.getElementById("chipAppetite");
+      var chipRole = document.getElementById("chipRole");
+      if (chipGuests) chipGuests.textContent = "Guests: " + $("adults").value + "/" + $("teens").value + "/" + $("children").value;
+      if (chipAppetite) {
+        var appetLabel = { light:"Light", moderate:"Moderate", generous:"Generous" }[$("appetite").value] || "Moderate";
+        chipAppetite.textContent = "Appetite: " + appetLabel;
+      }
+      if (chipRole) {
+        var roleText = { main:"Main", alongside:"Alongside", small:"Small", tasting:"Tasting" }[$("role").value] || "Main";
+        chipRole.textContent = "Role: " + roleText;
+      }
+      var out = document.getElementById("resultPrimary");
+      if (out){
+        var rounded = (Math.round((state.primaryValue || 0) * 10) / 10).toFixed(1);
+        out.textContent = rounded + " " + (state.unit || "");
+      }
+    }
+
+    function wireInputs(){
+      ["adults","teens","children","appetite","role"].forEach(function(id){
+        var el = $(id); if(!el) return;
+        ["input","change"].forEach(function(evt){ el.addEventListener(evt, render); });
+      });
+    }
+
+    function init(){
+      ["adults","teens","children"].forEach(selectAllOnFocus);
+      wireInputs();
+      render();
+    }
+
+    if (document.readyState === "loading"){ document.addEventListener("DOMContentLoaded", init); }
+    else { init(); }
+  })();
+  </script>
+</body>
+</html>
