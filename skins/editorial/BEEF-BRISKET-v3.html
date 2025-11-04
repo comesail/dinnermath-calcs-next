@@ -1,105 +1,73 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="dm-category" content="meat" />
-  <!-- Point this skin to the per-calculator data pack -->
-  <meta name="dm-data" content="/data/meat/beef-brisket.json" />
+{
+  "food_name": "Beef Brisket",
+  "category": "meat",
+  "primary_unit": "raw_lb",
+  "rounding_rule": "0.25_lb",
+  "notes": "v2.1 Hybrid: no leftovers control; event length hidden for Meat; dynamic steps; pricing isolated.",
+  "ae_ladder": { "adult": 1.00, "teen": 0.80, "child": 0.60 },
 
-  <title>Beef Brisket Quantity Calculator — How Much You'll Need</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;600&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --page:#FBFBFB; --card:#FFFFFF; --text:#222; --text-strong:#111;
-      --line:#EAEAEA; --focus:#1C7ED6; --numeral:#8BC7E6; --link:#14AAF3;
+  "appetite": {
+    "label": "How generous would you like the portions to be?",
+    "options": [
+      { "id": "light",    "label": "Light",    "whisper": "Allows for lighter portions.",   "value": 0.90 },
+      { "id": "moderate", "label": "Moderate", "whisper": "Allows for standard portions.",  "value": 1.00, "default": true },
+      { "id": "generous", "label": "Generous", "whisper": "Allows for heartier portions.", "value": 1.15 }
+    ]
+  },
+
+  "role_meal_share": {
+    "label": "Will this be the only meat or seafood you are serving?",
+    "options": [
+      { "id": "only",      "label": "Only meat/seafood",                 "whisper": "Usually 3 to 4 oz cooked per person.", "value": 1.00, "default": true },
+      { "id": "alongside", "label": "Alongside another meat/seafood",    "whisper": "About 2 to 3 oz cooked per person.",   "value": 0.60 },
+      { "id": "small",     "label": "Small portion",                     "whisper": "About 1.5 to 2 oz cooked per person.", "value": 0.45 },
+      { "id": "tasting",   "label": "Tasting or small bite",             "whisper": "About 1 oz cooked per person.",        "value": 0.35 }
+    ]
+  },
+
+  "baseline": {
+    "adult_cooked_oz": 3.5,
+    "ladder": { "teen": 0.80, "child": 0.60 }
+  },
+
+  "controls": [
+    {
+      "id": "cut",
+      "type": "select",
+      "label": "Cut",
+      "options": [
+        { "id": "flat",  "label": "Flat cut",  "whisper": "Leaner, higher yield.", "chips_text": "Cut: flat",  "default": true },
+        { "id": "point", "label": "Point cut", "whisper": "Fattier, lower yield.", "chips_text": "Cut: point" }
+      ]
     }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:var(--page);color:var(--text);font-family:Outfit,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial}
-    .wrap{max-width:980px;margin:0 auto;padding:16px}
-    .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
-    @media (max-width:980px){.grid{grid-template-columns:1fr}}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-    h1{margin:0 0 6px;font-size:26px;font-weight:600}
-    p.lede{margin:0 0 14px;color:#555}
-    label{display:block;font-size:13px;font-weight:600;margin:0 0 4px}
-    input[type=number],select{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:10px;font-size:14px}
-    .row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-    .row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    @media (max-width:720px){.row{grid-template-columns:1fr}.row-2{grid-template-columns:1fr}}
-    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-    .chip{border:1px solid #e5e7eb;border-radius:999px;padding:4px 8px;font-size:12px;background:#fff}
-    .result{font-size:32px;font-weight:700;color:#111;margin:6px 0 2px}
-    .muted{color:#666;font-size:13px}
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <div class="grid">
-      <div class="card">
-        <h1>Beef Brisket Quantity Calculator</h1>
-        <p class="lede">Enter guests and settings. We will estimate how many pounds of raw brisket to buy (planning estimate).</p>
+  ],
 
-        <!-- Step 1 Guests -->
-        <div class="row" aria-label="Guests">
-          <div><label for="adults">Adults</label><input id="adults" type="number" min="0" step="1" value="10"></div>
-          <div><label for="teens">Teens</label><input id="teens" type="number" min="0" step="1" value="0"></div>
-          <div><label for="children">Children</label><input id="children" type="number" min="0" step="1" value="0"></div>
-        </div>
+  "purchase_form": {
+    "enabled": true,
+    "label": "Are you cooking the brisket or buying it already prepared?",
+    "options": [
+      { "id": "raw",    "label": "Raw (cooking it)",        "chips_text": "Form: cooking it",       "use_yield": true,  "default": true },
+      { "id": "cooked", "label": "Cooked (already prepared)","chips_text": "Form: already prepared", "use_yield": false }
+    ]
+  },
 
-        <!-- Step 2 Appetite -->
-        <div style="margin-top:12px">
-          <label for="appetite">Appetite</label>
-          <select id="appetite">
-            <option value="light">Light</option>
-            <option value="moderate" selected>Moderate</option>
-            <option value="generous">Generous</option>
-          </select>
-        </div>
+  "yields": {
+    "raw_to_cooked": {
+      "flat":  { "value": 0.60, "needs_review": true, "notes": "Default; replace with spine-confirmed value if different." },
+      "point": { "value": 0.55, "needs_review": true, "notes": "Default; replace with spine-confirmed value if different." }
+    }
+  },
 
-        <!-- Step 3 Role / Meal-Share -->
-        <div style="margin-top:12px">
-          <label for="role">Role / Meal-Share</label>
-          <select id="role">
-            <option value="only" selected>Only meat/seafood</option>
-            <option value="alongside">Alongside another meat/seafood</option>
-            <option value="small">Small portion</option>
-            <option value="tasting">Tasting or small bite</option>
-          </select>
-        </div>
+  "results": {
+    "label": "Estimated number of pounds to buy",
+    "second_line_template": "Estimated from {guests} guests — {role}, {appetite}{cut}.",
+    "extra_line_template": "About {cooked_lb} cooked pounds.",
+    "method_note": "Totals reflect a small built-in planning allowance."
+  },
 
-        <!-- Food-specific control: Cut -->
-        <div style="margin-top:12px">
-          <label for="cut">Cut</label>
-          <select id="cut">
-            <option value="flat" selected>Flat cut</option>
-            <option value="point">Point cut</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="card" role="region" aria-label="Results">
-        <div class="muted">Estimated raw pounds to buy</div>
-        <div id="resultPrimary" class="result">-</div>
-        <div id="resultSub" class="muted">Enter your guest mix to calculate.</div>
-        <div id="chips" class="chips"></div>
-
-        <div class="muted" style="margin-top:10px;text-align:center">
-          Totals reflect a small built-in planning allowance.
-        </div>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:14px">
-      <div class="muted">
-        This tool provides general portion and cost estimates for planning only. Results depend on the information you enter and typical averages.
-      </div>
-    </div>
-  </div>
-
-  <!-- Shared engine and runner (paths match your repo) -->
-  <script src="/engine/engine.v2.js"></script>
-  <script src="/runner/runner.v2.js"></script>
-</body>
-</html>
-
+  "finder": {
+    "button_text": "Find beef brisket near me",
+    "search_query": "beef brisket near me",
+    "pills": ["Butcher shops", "Grocery stores"]
+  }
+}
