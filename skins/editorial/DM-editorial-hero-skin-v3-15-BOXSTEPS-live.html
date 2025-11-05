@@ -1,271 +1,210 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{FOOD NAME} Quantity Calculator — Quiet Editorial v3</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --page:#FAFAF7; --card:#FFFFFF; --line:rgba(0,0,0,.08);
-    --text:#121212; --muted:#5B616E; --accent:#0D3B66; --focus:#2E6FF2; --ghost:#0D3B66;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;background:var(--page);color:var(--text);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}
-  .wrap{max-width:1080px;margin:40px auto;padding:0 24px}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  .eyebrow{letter-spacing:.12em;text-transform:uppercase;font-size:12px;color:var(--muted);margin-bottom:6px}
-  /* Headings now use Inter for a more modern editorial sans */
-  h1{font-family:Outfit,Inter,system-ui,sans-serif;font-weight:700;font-size:40px;line-height:1.05;margin:0 0 8px 0}
-  .lede{max-width:60ch;color:var(--muted);margin:4px 0 24px 0}
+  <!-- DATA PACK for this calculator (relative to /skins/editorial/) -->
+  <meta name="dm-data" content="../../meat/beef-brisket.json">
 
-  .grid4{display:grid;gap:18px;grid-template-columns:1fr}
-  @media (min-width:1024px){ .grid4{grid-template-columns:1fr 1fr} }
+  <title>{FOOD NAME} Quantity Calculator — Quiet Editorial v3</title>
 
-  .box{background:var(--card);border:1px solid var(--line);padding:22px}
-  .box h2,.box h3{font-family:Inter,system-ui,sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
-                  font-size:16px;color:#2c2c2c;margin:0 0 10px 0;text-align:center}
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-  .step{position:relative;border-top:1px solid var(--line);padding:28px 16px 18px}
-  .step:first-child{border-top:0}
-  .q{position:relative;z-index:2;margin:0 auto 14px auto;text-align:center;font-weight:700;font-size:18px;max-width:52ch}
-  /* Big step numerals in a clean geometric sans (Outfit) for a modern 'editorial' numeral feel */
-  .bgnum{position:absolute;left:10px;top:2px;font-size:88px;line-height:1;font-weight:700;
-         font-family:Outfit,Inter,system-ui,sans-serif;color:var(--ghost);opacity:.06;z-index:1;user-select:none;pointer-events:none}
+  <style>
+    :root{
+      --page:#FAFAF7; --card:#FFFFFF; --line:rgba(0,0,0,.08);
+      --text:#121212; --muted:#5B6E16; --accent:#0D3B66; --ghost:#0D3B66;
+      --link:#1A4AF3;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--page);color:var(--text);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}
+    .wrap{max-width:1080px;margin:40px auto;padding:0 24px}
 
-  .row{display:grid;gap:12px}
-  .row.cols-3{grid-template-columns: 1fr 1fr 1fr}
-  label{font-size:13px;color:var(--muted)}
-  input[type=number]{width:100%;padding:10px 12px;border:1px solid rgba(0,0,0,.14);background:#fff;font-size:15px;border-radius:0}
-  input[type=number]:focus, a.preset:focus{outline:2px solid var(--focus);outline-offset:2px}
+    /* Headings use Inter for a modern editorial sans */
+    h1{font-family:Outfit,Inter,system-ui,sans-serif;font-weight:700;font-size:40px;line-height:1.05;margin:0 0 8px 0;text-transform:none}
+    .subhead{font-size:16px;color:#444;margin:0 0 24px 0}
 
-  .presets{display:flex;gap:14px;justify-content:center;margin-top:10px;font-size:13px;color:var(--muted);flex-wrap:wrap}
-  .presets span{color:var(--muted)}
-  a.preset{color:var(--accent);text-decoration:none;border-bottom:1px dotted transparent;transition:border-color .12s}
-  a.preset:hover{border-bottom-color:var(--accent)}
+    /* Grid */
+    .grid{display:grid;grid-template-columns:1fr;gap:28px}
+    @media(min-width:980px){ .grid{grid-template-columns:1fr 1fr} }
 
-  .cards{display:grid;gap:12px}
-  .card-opt{position:relative;border:1px solid rgba(13,59,102,.18);background:#fff;cursor:pointer;transition:border-color .15s, box-shadow .15s}
-  .card-opt input{position:absolute;left:50%;top:14px;transform:translateX(-50%);margin:0}
-  .card-opt .inner{padding:46px 16px 16px;text-align:center;max-width:56ch;margin:0 auto}
-  .card-opt .ttl{display:block;font-weight:700}
-  .card-opt .sub{display:block;color:var(--muted);font-size:13px;margin-top:6px;line-height:1.45}
-  .card-opt:hover{border-color:var(--accent);box-shadow:0 6px 18px rgba(13,59,102,.06)}
-  .card-opt input:checked ~ .inner .ttl{color:var(--accent)}
-  .card-opt input:focus-visible ~ .inner{outline:2px solid var(--focus);outline-offset:-2px}
+    /* Cards */
+    .card{background:var(--card);border:1px solid var(--line);padding:20px;border-radius:8px}
+    .card h2{font-size:18px;margin:0 0 16px 0}
+    .label{font-weight:600;font-size:14px;margin:16px 0 8px 0}
+    input[type=number], select{
+      width:100%;height:44px;border:1px solid var(--line);border-radius:6px;padding:10px 12px;
+      font-size:16px
+    }
 
-  .results-figure{font-family:Outfit,Inter,sans-serif;font-size:56px;margin:6px 0 10px 0;color:#111;text-align:center}
-  .summary{text-align:center;margin:0 0 6px 0;color:#2c2c2c}
-  .note{font-size:13px;color:var(--muted);text-align:center}
+    /* Quick presets row */
+    .presets{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:8px}
+    .presets .eyebrow{font-size:12px;color:#666}
+    .pill{display:inline-block;padding:6px 10px;border:1px solid var(--link);border-radius:999px;color:var(--link);cursor:pointer}
+    .pill:hover{background:rgba(26,74,243,.06)}
 
-  .row.cols-3-tight{display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr}
+    /* Radio tiles (centered) */
+    .tiles{display:grid;grid-template-columns:1fr;gap:14px}
+    @media(min-width:700px){ .tiles{grid-template-columns:1fr} }
+    .tile{border:1px solid var(--line);border-radius:8px;padding:16px;text-align:center;cursor:pointer}
+    .tile input{display:none}
+    .tile .title{font-weight:600;margin-bottom:6px}
+    .tile .desc{font-size:14px;color:#444}
+    .tile:has(input:checked){border-color:var(--accent);box-shadow:0 0 0 2px rgba(13,59,102,.12)}
 
-  /* Finder redesign: map icon + descriptive chips */
-  .finder-header{display:flex; align-items:center; justify-content:center; gap:8px; margin:6px 0 10px}
-  .finder-header svg{width:18px;height:18px;opacity:.7}
-  .finder-chips{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
-  .chip{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(0,0,0,.14);padding:10px 14px;text-decoration:none;color:#111;background:#fff}
-  .chip svg{width:16px;height:16px;opacity:.7}
-  .chip:hover{border-color:var(--accent)}
+    /* Results + pricing + finder */
+    .result-card h3{font-family:Outfit,Inter,sans-serif;font-size:18px;letter-spacing:.08em;color:#374151;margin:0 0 10px 0}
+    #result-number{font-family:Outfit,Inter; font-size:56px; line-height:1.05; margin:4px 0}
+    #result-summary{color:#333;margin:8px 0 12px 0}
+    #method-note{color:#555;margin:0}
+    .cols3{display:grid;grid-template-columns:1fr;gap:16px;margin-top:18px}
+    @media(min-width:880px){ .cols3{grid-template-columns:repeat(3,1fr)} }
 
-  footer.disclaimer{margin:22px 0 10px 0;text-align:center;font-size:12px;color:#6b6b6b;line-height:1.6}
-</style>
+    .finder{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:700px){ .finder{grid-template-columns:repeat(4,1fr)} }
+    .finder a{
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      border:1px solid var(--line);border-radius:8px;height:52px;
+      text-decoration:none;color:#111
+    }
+    .finder svg{width:18px;height:18px}
+    .disclaimer{font-size:13px;color:#555;border-top:1px solid var(--line);margin-top:28px;padding-top:16px}
+  </style>
 </head>
+
 <body>
   <div class="wrap">
-    <div class="eyebrow">DinnerMath</div>
+
+    <!-- Header -->
     <h1>{FOOD NAME} Quantity Calculator</h1>
-    <div class="lede">Enter guests and settings (or tap a quick preset). We will estimate how many units you need (planning estimate).</div>
+    <p class="subhead">Enter guests and settings (or tap a quick preset). We will estimate how many units you need (planning estimate).</p>
 
-    <div class="grid4">
-      <section class="box" id="box-steps">
-        <div class="step" id="s1">
-          <div class="bgnum">1</div>
-          <p class="q">How many people are you serving?</p>
-          <div class="row cols-3">
-            <div>
-              <label>Adults</label>
-              <input id="adults" type="number" min="0" value="5">
-            </div>
-            <div>
-              <label>Teens</label>
-              <input id="teens" type="number" min="0" value="0">
-            </div>
-            <div>
-              <label>Children</label>
-              <input id="children" type="number" min="0" value="0">
-            </div>
+    <!-- Inputs + Results -->
+    <div class="grid">
+
+      <!-- INPUTS -->
+      <section class="card" aria-label="Inputs">
+        <h2>Guests and settings</h2>
+
+        <div class="label">How many people are you serving?</div>
+        <div class="cols3">
+          <div>
+            <div class="eyebrow">Adults</div>
+            <input id="adults" type="number" min="0" value="5" oninput="ping()" onchange="ping()">
           </div>
-          <div class="presets" aria-label="Quick presets">
-            <span>Quick presets:</span>
-            <a class="preset" data-total="10" role="button" tabindex="0">10</a>
-            <a class="preset" data-total="25" role="button" tabindex="0">25</a>
-            <a class="preset" data-total="50" role="button" tabindex="0">50</a>
-            <a class="preset" data-total="100" role="button" tabindex="0">100</a>
-            <a class="preset" data-reset="true" role="button" tabindex="0">Reset</a>
+          <div>
+            <div class="eyebrow">Teens</div>
+            <input id="teens" type="number" min="0" value="0" oninput="ping()" onchange="ping()">
+          </div>
+          <div>
+            <div class="eyebrow">Children</div>
+            <input id="children" type="number" min="0" value="0" oninput="ping()" onchange="ping()">
           </div>
         </div>
 
-        <div class="step" id="s2">
-          <div class="bgnum">2</div>
-          <p class="q">How generous would you like the portions to be?</p>
-          <div role="radiogroup" aria-label="Appetite" class="cards">
-            <label class="card-opt">
-              <input type="radio" name="appetite" value="moderate" checked>
-              <div class="inner"><span class="ttl">Moderate</span><span class="sub">Fits most gatherings — standard portions.</span></div>
-            </label>
-            <label class="card-opt">
-              <input type="radio" name="appetite" value="light">
-              <div class="inner"><span class="ttl">Light</span><span class="sub">Smaller portions for lighter appetites.</span></div>
-            </label>
-            <label class="card-opt">
-              <input type="radio" name="appetite" value="generous">
-              <div class="inner"><span class="ttl">Generous</span><span class="sub">Heftier portions for bigger appetites.</span></div>
-            </label>
-          </div>
+        <div class="presets">
+          <span class="eyebrow">Quick presets:</span>
+          <span class="pill" data-n="10">10</span>
+          <span class="pill" data-n="25">25</span>
+          <span class="pill" data-n="50">50</span>
+          <span class="pill" data-n="100">100</span>
+          <span class="pill" id="resetAll">Reset</span>
         </div>
 
-        <div class="step" id="s3">
-          <div class="bgnum">3</div>
-          <p class="q">Will this be the only meat or seafood you’re serving?</p>
-          <div role="radiogroup" aria-label="Role" class="cards">
-            <label class="card-opt">
-              <input type="radio" name="role" value="main" checked>
-              <div class="inner"><span class="ttl">Only item (full serving)</span><span class="sub">Allows for full servings — usually 3 to 4 oz cooked per person.</span></div>
-            </label>
-            <label class="card-opt">
-              <input type="radio" name="role" value="alongside">
-              <div class="inner"><span class="ttl">Alongside another item</span><span class="sub">Smaller serving — about 2 to 3 oz cooked per person.</span></div>
-            </label>
-            <label class="card-opt">
-              <input type="radio" name="role" value="small">
-              <div class="inner"><span class="ttl">Small portion</span><span class="sub">About 1.5 to 2 oz cooked per person.</span></div>
-            </label>
-            <label class="card-opt">
-              <input type="radio" name="role" value="tasting">
-              <div class="inner"><span class="ttl">Tasting or small bite</span><span class="sub">Tiny portion — about 1 oz cooked per person.</span></div>
-            </label>
-          </div>
-        </div>
+        <div class="label" style="margin-top:18px">How generous would you like the portions to be?</div>
+        <select id="appetite" onchange="ping()" oninput="ping()">
+          <option value="light">Light — Allows for lighter portions.</option>
+          <option value="moderate" selected>Moderate — Allows for standard portions.</option>
+          <option value="generous">Generous — Allows for heartier portions.</option>
+        </select>
+
+        <div class="label">Will this be the only meat or seafood you are serving?</div>
+        <select id="role" onchange="ping()" oninput="ping()">
+          <option value="only" selected>Only item (full serving) — usually 3 to 4 oz cooked per person.</option>
+          <option value="alongside">Alongside another item — about 2 to 3 oz cooked per person.</option>
+          <option value="small">Small portion — about 1.5 to 2 oz cooked per person.</option>
+          <option value="tasting">Tasting or small bite — about 1 oz cooked per person.</option>
+        </select>
+
+        <div class="label">Cut</div>
+        <select id="cut" onchange="ping()" oninput="ping()">
+          <option value="flat" selected>Flat cut — Leaner, higher yield.</option>
+          <option value="point">Point cut — Fattier, lower yield.</option>
+        </select>
+
+        <div class="label">Are you cooking the brisket or buying it already prepared?</div>
+        <select id="purchaseForm" onchange="ping()" oninput="ping()">
+          <option value="raw" selected>Raw (cooking it)</option>
+          <option value="cooked">Cooked (already prepared)</option>
+        </select>
       </section>
 
-      <section class="box" id="box-specific">
-        <h3>Food specifics</h3>
-        <div class="step" id="s4">
-          <div class="bgnum">4</div>
-          <p class="q">Food-specific control 1</p>
-          <div style="border:1px dashed #cfcfcf; padding:18px; text-align:center;">(Placeholder — enable per calculator)</div>
-        </div>
-        <div class="step" id="s5">
-          <div class="bgnum">5</div>
-          <p class="q">Food-specific control 2</p>
-          <div style="border:1px dashed #cfcfcf; padding:18px; text-align:center;">(Placeholder — enable per calculator)</div>
-        </div>
-      </section>
+      <!-- RESULTS / PRICING / FINDER -->
+      <section class="card result-card" aria-label="Results">
+        <h3 id="result-label">Estimated quantity to buy</h3>
+        <div id="result-number">0.0 lb</div>
+        <p id="result-summary"></p>
+        <p id="method-note"></p>
 
-      <section class="box" id="box-results">
-        <h3>Estimated quantity</h3>
-        <div class="results-figure" id="result-number">0.0 lb</div>
-        <div class="summary" id="input-summary">Guests: 5/0/0 · Appetite: Moderate · Role: Main</div>
-        <div class="note">The estimate above includes a small built-in cushion, so additional rounding up is generally unnecessary.</div>
-      </section>
-
-      <section class="box" id="box-pricing">
-        <h3>Pricing</h3>
-        <div class="row cols-3-tight">
-          <div><label>Unit price ($/lb)</label><input type="number" step="0.01" min="0" placeholder="0.00"></div>
-          <div><label>Sales tax %</label><input type="number" step="0.25" min="0" placeholder="0"></div>
-          <div><label>Fees ($)</label><input type="number" step="0.01" min="0" placeholder="0.00"></div>
+        <div class="label" style="margin-top:18px">Pricing</div>
+        <div class="cols3">
+          <div>
+            <div class="eyebrow">Unit price ($/lb)</div>
+            <input id="price" type="number" min="0" step="0.01" value="0" oninput="ping()" onchange="ping()">
+          </div>
+          <div>
+            <div class="eyebrow">Sales tax %</div>
+            <input id="tax" type="number" min="0" step="0.01" value="0" oninput="ping()" onchange="ping()">
+          </div>
+          <div>
+            <div class="eyebrow">Fees ($)</div>
+            <input id="fees" type="number" min="0" step="0.01" value="0" oninput="ping()" onchange="ping()">
+          </div>
         </div>
 
-        <div class="finder-header">
-          <!-- map pin icon -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 21s-6-4.35-6-10a6 6 0 1 1 12 0c0 5.65-6 10-6 10Z"/>
-            <circle cx="12" cy="11" r="2.5"/>
-          </svg>
-          <h3 style="margin:0">Finder</h3>
+        <div class="label" style="margin-top:18px">Finder</div>
+        <div class="finder">
+          <a id="btn-find" href="https://www.google.com/maps/search/beef+brisket+near+me" target="_blank" rel="noopener">
+            <!-- map pin -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.4-7-10.5A7 7 0 0 1 19 10.5C19 15.6 12 21 12 21Z"/><circle cx="12" cy="10.5" r="2.5"/></svg>
+            Find brisket near me
+          </a>
+          <a href="https://www.google.com/maps/search/seafood+markets" target="_blank" rel="noopener">Seafood markets</a>
+          <a href="https://www.google.com/maps/search/wholesale+clubs" target="_blank" rel="noopener">Wholesale clubs</a>
+          <a href="https://www.google.com/maps/search/grocery+stores" target="_blank" rel="noopener">Grocery stores</a>
         </div>
-        <div class="finder-chips">
-          <a class="chip" href="https://www.google.com/maps/search/brisket+near+me" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-6-4.35-6-10a6 6 0 1 1 12 0c0 5.65-6 10-6 10Z"/><circle cx="12" cy="11" r="2.5"/></svg>
-            <span>Find brisket near me</span>
-          </a>
-          <a class="chip" href="https://www.google.com/maps/search/seafood+markets" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-6-4.35-6-10a6 6 0 1 1 12 0c0 5.65-6 10-6 10Z"/><circle cx="12" cy="11" r="2.5"/></svg>
-            <span>Seafood markets</span>
-          </a>
-          <a class="chip" href="https://www.google.com/maps/search/wholesale+club" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-6-4.35-6-10a6 6 0 1 1 12 0c0 5.65-6 10-6 10Z"/><circle cx="12" cy="11" r="2.5"/></svg>
-            <span>Wholesale clubs</span>
-          </a>
-          <a class="chip" href="https://www.google.com/maps/search/grocery+store" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-6-4.35-6-10a6 6 0 1 1 12 0c0 5.65-6 10-6 10Z"/><circle cx="12" cy="11" r="2.5"/></svg>
-            <span>Grocery stores</span>
-          </a>
-        </div>
+
+        <p class="disclaimer">
+          Use for planning only. DinnerMath provides general portion and cost estimates based on USDA FoodData Central guidelines, catering standards, and typical averages. Results depend on the information you enter. DinnerMath is not responsible for purchasing decisions, food safety, or outcomes based on these estimates. © 2025 DinnerMath. All rights reserved.
+        </p>
       </section>
     </div>
-
-    <footer class="disclaimer">
-      Use for planning only. DinnerMath provides general portion and cost estimates based on USDA FoodData Central guidelines, catering standards, and typical averages.
-      Results depend on the information you enter. DinnerMath is not responsible for purchasing decisions, food safety, or outcomes based on these estimates. © 2025 DinnerMath. All rights reserved.
-    </footer>
   </div>
 
-<script>
-  // Select-all UX
-  document.querySelectorAll('input[type="number"]').forEach(function(el){
-    el.addEventListener('focus', function(){ this.select(); });
-    el.addEventListener('click', function(){ this.select(); });
-  });
-
-  function applyPreset(n){
-    const A = document.getElementById('adults'), T = document.getElementById('teens'), C = document.getElementById('children');
-    if(!A||!T||!C) return;
-    A.value = n; T.value = 0; C.value = 0; A.focus(); A.select(); updateSummary();
-  }
-  function resetAll(){
-    const A = document.getElementById('adults'), T = document.getElementById('teens'), C = document.getElementById('children');
-    if(A){A.value=5} if(T){T.value=0} if(C){C.value=0}
-    const ap = document.querySelector('input[name="appetite"][value="moderate"]'); if(ap) ap.checked = true;
-    const rl = document.querySelector('input[name="role"][value="main"]'); if(rl) rl.checked = true;
-    updateSummary(); if(A){A.focus();A.select();}
-  }
-  function onPresetEvent(e){
-    const a = e.target.closest && e.target.closest('a.preset'); if(!a) return;
-    e.preventDefault();
-    if(a.hasAttribute('data-reset')){ resetAll(); return; }
-    const n = Number(a.getAttribute('data-total')||0); applyPreset(n);
-  }
-  document.addEventListener('pointerdown', onPresetEvent);
-  document.addEventListener('click', onPresetEvent);
-  document.addEventListener('keydown', function(e){
-    const a = e.target.closest && e.target.closest('a.preset'); if(!a) return;
-    if(e.key==='Enter' || e.key===' '){ e.preventDefault(); if(a.hasAttribute('data-reset')){resetAll();} else {applyPreset(Number(a.getAttribute('data-total')||0));} }
-  });
-
-  function updateSummary(){
-    const A = Number(document.getElementById('adults')?.value || 0);
-    const T = Number(document.getElementById('teens')?.value || 0);
-    const C = Number(document.getElementById('children')?.value || 0);
-    const ap = document.querySelector('input[name="appetite"]:checked')?.value || 'moderate';
-    const rl = document.querySelector('input[name="role"]:checked')?.value || 'main';
-    const appL = {light:'Light', moderate:'Moderate', generous:'Generous'}[ap] || 'Moderate';
-    const roleL = {main:'Main', alongside:'Alongside', small:'Small', tasting:'Tasting'}[rl] || 'Main';
-    const t = "Guests: "+A+"/"+T+"/"+C+" · Appetite: "+appL+" · Role: "+roleL;
-    const el = document.getElementById('input-summary'); if(el) el.textContent = t;
-  }
-  ['input','change'].forEach(evt => {
-    ['adults','teens','children'].forEach(id => {
-      const el = document.getElementById(id);
-      if(el) el.addEventListener(evt, updateSummary);
+  <!-- Helper script: quick presets + force recompute -->
+  <script>
+    function ping(){ try{ document.getElementById('adults').dispatchEvent(new Event('change',{bubbles:true})); }catch(e){} }
+    document.addEventListener('click', function(e){
+      const t = e.target.closest('.pill');
+      if(!t) return;
+      if(t.id === 'resetAll'){
+        document.getElementById('adults').value = 5;
+        document.getElementById('teens').value = 0;
+        document.getElementById('children').value = 0;
+        document.getElementById('appetite').value = 'moderate';
+        document.getElementById('role').value = 'only';
+        document.getElementById('cut').value = 'flat';
+        document.getElementById('purchaseForm').value = 'raw';
+        ping();
+        return;
+      }
+      const n = t.getAttribute('data-n');
+      if(n){ document.getElementById('adults').value = n; ping(); }
     });
-    document.querySelectorAll('input[name="appetite"], input[name="role"]').forEach(el => {
-      el.addEventListener(evt, updateSummary);
-    });
-  });
-  document.addEventListener('DOMContentLoaded', function(){ updateSummary(); });
-</script>
+  </script>
+
+  <!-- Runner (shared engine). Keep this at the end. -->
+  <script src="../../runner/runner.v2.js" defer></script>
 </body>
 </html>
