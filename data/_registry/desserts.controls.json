@@ -1,0 +1,72 @@
+{
+  "meta": {
+    "category": "desserts",
+    "version": "1.0",
+    "notes": "Shared UI/controls for dessert calculators. Runner merges these into /data/<slug>.json at runtime."
+  },
+
+  "defaults": {
+    "input_order": ["guests", "appetite", "role", "controls"]
+  },
+
+  "slugs": {
+    "brownies": {
+      "ui": {
+        "title": "Brownies",
+        "role_family": "handhelds",
+        "input_order": ["role", "guests", "appetite", "controls"]
+      },
+      "controls": [
+        {
+          "key": "servingStyle",
+          "label": "Serving style",
+          "type": "dropdown",
+          "options": [
+            { "value": "standard", "label": "2x2 inch squares", "piecesPerAdult": 1.5 },
+            { "value": "mini",     "label": "Mini bites",       "piecesPerAdult": 2.0 },
+            { "value": "large",    "label": "Large cafe-style", "piecesPerAdult": 1.0 }
+          ],
+          "default": "standard",
+          "math_effect": "sets pieces-per-adult baseline"
+        },
+        {
+          "key": "panSize",
+          "label": "Homemade pan size",
+          "type": "dropdown",
+          "options": [
+            { "value": "9x13", "label": "9x13 pan (~16 pieces)", "piecesPerPan": 16 },
+            { "value": "9x9",  "label": "9x9 pan (~12 pieces)",  "piecesPerPan": 12 },
+            { "value": "8x8",  "label": "8x8 pan (~9 pieces)",   "piecesPerPan": 9 }
+          ],
+          "default": "9x13",
+          "math_effect": "maps pieces -> pans when source=homemade"
+        },
+        {
+          "key": "source",
+          "label": "Buying mode",
+          "type": "dropdown",
+          "options": [
+            { "value": "homemade",    "label": "Homemade (by pan)" },
+            { "value": "storebought", "label": "Store-bought (by pack)" }
+          ],
+          "default": "homemade",
+          "math_effect": "switches pan vs pack mapping"
+        },
+        {
+          "key": "packYield",
+          "label": "Pieces per pack (store-bought)",
+          "type": "number",
+          "default": 12,
+          "min": 4,
+          "max": 48,
+          "math_effect": "maps pieces -> packs when source=storebought"
+        }
+      ]
+    }
+
+    /* Add more dessert slugs here over time:
+    "cheesecake": { ... },
+    "tiramisu": { ... }
+    */
+  }
+}
