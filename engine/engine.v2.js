@@ -1,97 +1,67 @@
-/* DinnerMath engine v2 (global refactor harness)
-   Delegates compute/render to per-calculator CALC_CONFIG hooks.
-   Requires engine-utils.js loaded first. No CSS or class changes. ASCII only. */
 
-(function(global){
-  "use strict";
+window.DM = window.DM || {};
+(function(){
+  // Global spec constants for Desserts
+  const AE = { adult:1.00, teen:0.75, child:0.50 };
+  const APPETITE = { Light:0.90, Moderate:1.00, Generous:1.15 };
+  const ROLE = [1.00, 0.60, 0.45, 0.35]; // internal order matches UI
+  const LOCKS = { raw_to_cooked_yield: 1.00, toppings_cushion: 0.10 };
 
-  // Helpers
-  function $(id){ return document.getElementById(id); }
-  function N(v,d){ const n = parseFloat(v); return isFinite(n)? n : (d||0); }
-  function money(n){ return (isFinite(n) && n>0) ? ("$" + n.toFixed(2)) : "$—"; }
-
-  // Strong select-all on focus/click for numeric inputs
-  function enableSelectAll(ids){
-    (ids||[]).forEach(id=>{
-      const el = $(id); if(!el) return;
-      ["focus","click"].forEach(evt=>el.addEventListener(evt,()=>{ try{ el.select(); }catch(_){ /* no-op */ } }));
-    });
-  }
-
-  function attachInputListeners(root, onChange){
-    const scope = root || document;
-    const handler = ()=>{ try{ onChange(); }catch(e){ /* no-op */ } };
-    scope.querySelectorAll("input, select").forEach(el=>{
-      el.addEventListener("input", handler);
-      el.addEventListener("change", handler);
-    });
-  }
-
-  function run(){
-    const C = global.CALC_CONFIG || {};
-    if(typeof EngineUtils === "undefined"){
-      console.error("EngineUtils not found. Load engine-utils.js first.");
-      return;
+  function parseQty(str){
+    if(!str) return {num:0, unit:''};
+    const m = String(str).trim().match(/^([\d.\/]+)\s*(.*)$/);
+    if(!m) return {num:0, unit:String(str).trim()};
+    // support simple fractions like 1/2
+    let n = 0;
+    const t = m[1];
+    if(t.includes('/')){
+      const [a,b] = t.split('/').map(Number);
+      n = (isFinite(a)&&isFinite(b)&&b)? (a/b) : Number(t);
+    } else {
+      n = Number(t);
     }
-
-    // Select-all handler as requested in project locks
-    enableSelectAll(C.selectAllIds || []);
-
-    // Optional calculator-specific init before matrix
-    if(typeof C.init === "function"){ try{ C.init(); }catch(_){ } }
-
-    // Apply inclusion matrix and pricing isolation
-    EngineUtils.applyInclusionMatrix(C.inclusion || {}, C.idMap || {});
-    EngineUtils.pricingIsolationGuard({ pricingSectionSelector: C.pricingSectionSelector || "section.pricing" });
-
-    // Initial relabel of steps
-    EngineUtils.relabelSteps();
-
-    // Render pipeline
-    function render(){
-      if(typeof C.compute !== "function" || typeof C.onRender !== "function"){
-        console.error("CALC_CONFIG must provide compute(stateHelpers) and onRender(state).");
-        return;
-      }
-      const state = C.compute({ $, N, money });
-      C.onRender(state, { $, N, money });
-      EngineUtils.updateChips(state, {
-        outChipsId: C.outChipsId || "outChips",
-        inRoleId: C.inRoleId || "inRole",
-        inAppetiteId: C.inAppetiteId || "inAppetite",
-        foodChipIds: C.foodChipIds || []
-      });
-      // Relabel after any visibility toggles that happened inside onRender
-      EngineUtils.relabelSteps();
-    }
-
-    // Attach listeners
-    attachInputListeners(document.querySelector("main#calculator"), render);
-
-    // Optional reset button
-    if(C.resetButtonId){
-      const b = $(C.resetButtonId);
-      if(b && typeof C.onReset === "function"){
-        b.addEventListener("click", ()=>{ try{ C.onReset(); render(); }catch(_){ } });
-      }
-    }
-
-    // Compute once on load
-    render();
-
-    // Expose for debugging
-    global.Engine = { run, render, $, N, money };
+    return {num: n||0, unit:(m[2]||'').trim()};
   }
 
-  // Auto-run on DOM ready
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", run);
-  }else{
-    run();
+  function aeCount(A,T,C){
+    return (A||0)*AE.adult + (T||0)*AE.teen + (C||0)*AE.child;
   }
 
-  // Also expose helpers
-  global.Engine = Object.assign((global.Engine||{}), { run, $, N, money });
+  function applyHybridRounding(pieces, roundingUnit){
+    // Unit-based rounding bias per spec:
+    // if remainder >= 0.8 of next whole piece -> +1 (cap +1)
+    // for groups <= 8 AE -> always round up to next whole
+    const n = Number(pieces)||0;
+    const base = Math.floor(n);
+    const rem = n - base;
+    if(n <= 8){ return Math.ceil(n); }
+    if(rem >= 0.8) return base + 1;
+    return Math.round(n);
+  }
 
-})(window);
+  function computeDessert(data, inputs){
+    const base = parseQty(data.adult_cooked_baseline); // e.g., "1 slice", "1 piece", "1/2 cup"
+    const ae = aeCount(inputs.adults, inputs.teens, inputs.children);
+    const roleVal = Number(inputs.role || 1.00);
+    const appetiteVal = Number(inputs.appetite || 1.00);
 
+    // Baseline acts as per-person quantity in given unit
+    let totalUnits = ae * base.num * roleVal * appetiteVal;
+
+    // Food-specific: toppings bar adds +10% cushion (display-only elsewhere)
+    if(inputs.toppings_bar === true){ totalUnits *= (1 + (data.toppings_cushion || LOCKS.toppings_cushion)); }
+
+    // Apply Hybrid cushion note is display-only; rounding bias handled at unit level
+    const roundedUnits = applyHybridRounding(totalUnits, data.rounding_increment);
+
+    return {
+      unit: base.unit || (data.primary_purchase_unit || 'pieces'),
+      raw_estimate: totalUnits,
+      rounded: roundedUnits
+    };
+  }
+
+  window.DM.engine = {
+    AE, APPETITE, ROLE, computeDessert, parseQty
+  };
+})();
