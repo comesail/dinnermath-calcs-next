@@ -1,16 +1,9 @@
-/* runner.v2.js  (shared for all calculators)
-   - Loads /data/<slug>.json
-   - Applies optional per-slug UI overrides:
-       ui.title -> sets H1 and document.title
-       ui.role_family -> tags <body data-role-family="...">
-       ui.input_order -> reorders sections for this slug only
-   - Defaults by category remain the same unless overridden
-   - Recalculates on input/change; select-all on focus/click for guest fields
-   - Renumbers visible steps after layout changes
+/* runner.v2.js (shared) - v5
+   Loads /data/<slug>.json and merges /data/_registry/<category>.controls.json (if present).
+   Works with Editorial v1.4 skin (ids s1,s2,s3,s5) without visual changes.
    ASCII only.
 */
 (function () {
-  // ---------- small helpers ----------
   function qs(sel, root) { return (root || document).querySelector(sel); }
   function qsa(sel, root) { return Array.from((root || document).querySelectorAll(sel)); }
 
@@ -22,8 +15,8 @@
 
   function getSlugFromLocation() {
     const u = new URL(window.location.href);
-    const qsSlug = u.searchParams.get("slug");
-    if (qsSlug) return qsSlug;
+    const p = u.searchParams.get("slug");
+    if (p) return p;
     const m = u.pathname.match(/(?:\/|^)([^\/]+)\.html$/);
     return m ? m[1] : null;
   }
@@ -43,21 +36,20 @@
     const roleVal = qs('input[name="role"]:checked')?.value || "1.00";
     const appetiteVal = qs('input[name="appetite"]:checked')?.value || "1.00";
     const toppingsBar = qs("#toppings")?.value === "yes";
-    return {
-      adults: A,
-      teens: T,
-      children: C,
-      role: parseFloat(roleVal),
-      appetite: parseFloat(appetiteVal),
-      toppings_bar: toppingsBar
-    };
+    return { adults: A, teens: T, children: C, role: parseFloat(roleVal), appetite: parseFloat(appetiteVal), toppings_bar: toppingsBar };
   }
 
   function writeResults(result) {
     const numEl = qs("#result-number");
     if (numEl) {
       const n = (Math.round(result.rounded * 10) / 10).toFixed(1);
-      numEl.textContent = n + " " + (result.unit || "servings");
+      const unit = result.unit || "servings";
+      // Keep existing skins that include the unit in markup
+      if (numEl.textContent && /servings/i.test(numEl.textContent)) {
+        numEl.textContent = n + " " + unit;
+      } else {
+        numEl.textContent = n;
+      }
     }
     const summary = qs("#input-summary");
     if (summary) {
@@ -70,85 +62,89 @@
     }
   }
 
-  // ---------- layout helpers ----------
-  // Map logical keys to section elements present in the shared skin.
-  // Update these selectors only if your skin uses different IDs.
+  // Accept multiple possible selectors per logical key
   const SECTION_SELECTORS = {
-    role:        '#section-role',
-    guests:      '#section-guests',
-    appetite:    '#section-appetite',
-    controls:    '#section-controls'
-    // eventLength optional in other categories: '#section-length'
+    role:        ["#s1", "#section-role"],
+    guests:      ["#s2", "#section-guests"],
+    appetite:    ["#s3", "#section-appetite"],
+    controls:    ["#s4", "#s5", "#section-controls"],
+    eventLength: ["#s6", "#section-length"]
   };
-
   function resolveSectionEl(key) {
-    const sel = SECTION_SELECTORS[key];
-    return sel ? qs(sel) : null;
+    const list = SECTION_SELECTORS[key] || [];
+    for (const sel of list) {
+      const el = qs(sel);
+      if (el) return el;
+    }
+    return null;
   }
 
   function reorderSections(order) {
-    // Order is an array of logical keys, e.g., ["role","guests","appetite","controls"]
-    // We will append in order inside the main container.
-    const container = qs('#inputs-container') || qs('main') || document.body;
+    const first = resolveSectionEl(order[0]);
+    const container =
+      qs("#inputs-container") ||
+      (first ? first.parentElement : null) ||
+      qs("main") ||
+      document.body;
     if (!container || !order || !order.length) return;
     order.forEach(function (key) {
       const el = resolveSectionEl(key);
-      if (el && el.parentNode !== container) {
-        container.appendChild(el);
-      } else if (el) {
-        // already a child; move to the end in the desired order
-        container.appendChild(el);
-      }
+      if (el) container.appendChild(el);
     });
   }
 
   function renumberSteps() {
-    // Finds each visible step section and updates its number and aria-label.
-    // Expects each section to have:
-    //   .step-label element for the visible number
-    //   role="region" or aria-label on the section wrapper
-    const sections = qsa('[data-step-section]');
+    const sections = qsa(".step, [data-step-section]");
     let idx = 1;
     sections.forEach(function (sec) {
-      const isHidden = sec.hasAttribute('hidden') || sec.style.display === 'none';
-      if (isHidden) return;
-      const lbl = qs('.step-label', sec) || qs('[data-step-label]', sec);
-      if (lbl) lbl.textContent = String(idx);
-      const aria = sec.getAttribute('aria-label') || '';
-      if (aria) sec.setAttribute('aria-label', aria.replace(/\bStep\s+\d+\b/i, 'Step ' + idx));
+      const hidden = sec.hasAttribute("hidden") || sec.style.display === "none";
+      if (hidden) return;
+      const lbl = qs(".step-label", sec);
+      if (lbl) { lbl.textContent = String(idx); }
+      // For skins using big background numerals
+      const bg = qs(".bgnum", sec);
+      if (bg) { bg.textContent = String(idx); }
       idx += 1;
     });
   }
 
-  function applyUiMeta(data) {
-    // Title
-    var title = data?.ui?.title || data?.name || data?.display_name || data?.slug || "Calculator";
-    const h1 = qs('#page-title') || qs('h1');
+  function applyUiMeta(data, regForSlug, regDefaults) {
+    const title = (regForSlug?.ui?.title) || data?.ui?.title || data?.name || data?.display_name || data?.slug || "Calculator";
+    const h1 = qs("#page-title") || qs("h1");
     if (h1) h1.textContent = title + " Quantity Calculator";
     document.title = title + " — DinnerMath";
 
-    // Role family tag for copy selection in the skin (if used there)
-    if (data?.ui?.role_family || data?.role_family) {
-      document.body.setAttribute('data-role-family', data.ui?.role_family || data.role_family);
-    }
+    const roleFam = (regForSlug?.ui?.role_family) || data?.ui?.role_family || data?.role_family;
+    if (roleFam) document.body.setAttribute("data-role-family", roleFam);
 
-    // Choose order
     const defaultOrderByCategory = {
       desserts: ["guests", "appetite", "role", "controls"],
       meat:     ["guests", "eventLength", "appetite", "role", "controls"],
       drinks:   ["guests", "eventLength", "appetite", "role", "controls"]
     };
     const cat = (data.category || "").toLowerCase();
-    const override = Array.isArray(data?.ui?.input_order) ? data.ui.input_order : null;
-    const desired = (override && override.length)
-      ? override
-      : (defaultOrderByCategory[cat] || ["guests","appetite","role","controls"]);
-
-    reorderSections(desired);
+    const order =
+      (regForSlug?.ui?.input_order && regForSlug.ui.input_order.length && regForSlug.ui.input_order) ||
+      (regDefaults?.input_order && regDefaults.input_order.length && regDefaults.input_order) ||
+      defaultOrderByCategory[cat] ||
+      ["guests", "appetite", "role", "controls"];
+    reorderSections(order);
     renumberSteps();
   }
 
-  // ---------- bootstrap ----------
+  function deepMergeInto(target, source) {
+    if (!source || typeof source !== "object") return;
+    Object.keys(source).forEach(function (k) {
+      const sv = source[k];
+      if (sv && typeof sv === "object" && !Array.isArray(sv)) {
+        if (!target[k] || typeof target[k] !== "object") target[k] = {};
+        deepMergeInto(target[k], sv);
+      } else {
+        target[k] = sv;
+      }
+    });
+  }
+
   async function bootstrap() {
     try {
       const slug = getSlugFromLocation();
@@ -156,16 +152,26 @@
 
       const dataUrl = "/data/" + slug + ".json";
       const data = await loadJSON(dataUrl);
-      window.DM_DATA = data; // expose for skin if needed
 
-      // UI metadata and ordering (shared, but can be overridden per slug)
-      applyUiMeta(data);
+      let reg = null, regForSlug = null, regDefaults = null;
+      const cat = (data.category || "").toLowerCase();
+      if (cat) {
+        const regUrl = "/data/_registry/" + cat + ".controls.json";
+        try {
+          reg = await loadJSON(regUrl);
+          regDefaults = reg?.defaults || null;
+          regForSlug = reg?.slugs?.[slug] || null;
+          if (regForSlug) deepMergeInto(data, regForSlug);
+        } catch (e) { console.warn("No registry for category:", cat); }
+      }
 
-      // Select-all behavior for guest fields
+      window.DM_DATA = data;
+
+      applyUiMeta(data, regForSlug, regDefaults);
+
       ["adults", "teens", "children"].forEach(selectAllBehavior);
 
       function recalc() {
-        // Engine computes per-category logic; runner stays generic
         const inputs = readInputs();
         const result = window.DM && window.DM.engine && window.DM.engine.computeDessert
           ? window.DM.engine.computeDessert(data, inputs)
@@ -173,21 +179,17 @@
         writeResults(result);
       }
 
-      // Listen once for all future inputs
       ["input", "change"].forEach(function (evt) {
-        qsa("input,select").forEach(function (el) {
-          el.addEventListener(evt, recalc);
-        });
+        qsa("input,select").forEach(function (el) { el.addEventListener(evt, recalc); });
       });
 
       recalc();
     } catch (err) {
       console.error(err);
-      const errBox = qs("#error-box");
+      const errBox = document.getElementById("error-box");
       if (errBox) errBox.textContent = "Error loading calculator.";
     }
   }
 
   document.addEventListener("DOMContentLoaded", bootstrap);
 })();
-
