@@ -80,7 +80,7 @@
 </head>
 <body>
   <div class="wrap">
-    <h1 id="page-title">{DESSERT NAME} Quantity Calculator</h1>
+    <h1>{DESSERT NAME} Quantity Calculator</h1>
     <div class="lede">Enter guests and settings (or tap a preset). We will estimate how many servings you need (planning estimate).</div>
 
     <div class="grid">
@@ -207,9 +207,88 @@
     </footer>
   </div>
 
+<script>
+  function num(v){ return Number(String(v).replace(/[^0-9.]/g,'')||0); }
 
+  ['adults','teens','children'].forEach(function(id){
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('focus', function(){ this.select(); });
+    el.addEventListener('click', function(){ this.select(); });
+  });
+  function applyPreset(n){
+    const A=document.getElementById('adults'),T=document.getElementById('teens'),C=document.getElementById('children');
+    if(!A||!T||!C) return; A.value=n; T.value=0; C.value=0; updateAll(); A.focus(); A.select();
+  }
+  function resetAll(){
+    const A=document.getElementById('adults'),T=document.getElementById('teens'),C=document.getElementById('children');
+    if(A){A.value=5} if(T){T.value=0} if(C){C.value=0}
+    document.querySelector('input[name="appetite"][value="1.00"]').checked=true;
+    document.querySelector('input[name="role"][value="1.00"]').checked=true;
+    updateAll(); if(A){A.focus();A.select();}
+  }
+  function presetHandler(e){
+    const a=e.target.closest&&e.target.closest('a.preset'); if(!a) return;
+    e.preventDefault();
+    if(a.hasAttribute('data-reset')){ resetAll(); return; }
+    applyPreset(Number(a.getAttribute('data-total')||0));
+  }
+  document.addEventListener('click', presetHandler);
+  document.addEventListener('keydown', function(e){
+    const a=e.target.closest&&e.target.closest('a.preset'); if(!a) return;
+    if(e.key==='Enter'||e.key===' '){ e.preventDefault(); if(a.hasAttribute('data-reset')){resetAll();} else {applyPreset(Number(a.getAttribute('data-total')||0));} }
+  });
 
-<script src="/engine/engine.v2.js"></script>
-<script src="/runner/runner.v2.js?v=5"></script>
+  function calcServings(){
+    const A=num(document.getElementById('adults').value);
+    const T=num(document.getElementById('teens').value);
+    const C=num(document.getElementById('children').value);
+    const role=parseFloat(document.querySelector('input[name="role"]:checked')?.value || '1.00');
+    const appetite=parseFloat(document.querySelector('input[name="appetite"]:checked')?.value || '1.00');
+    const ae=A + 0.8*T + 0.6*C; const baseline=1.0;
+    return ae * baseline * role * appetite;
+  }
+
+  function updateSummary(){
+    const apInput=document.querySelector('input[name="appetite"]:checked');
+    const rlInput=document.querySelector('input[name="role"]:checked');
+    const A=num(document.getElementById('adults').value);
+    const T=num(document.getElementById('teens').value);
+    const C=num(document.getElementById('children').value);
+    const appLabel=apInput?.dataset.label || 'Moderate';
+    const roleLabel=rlInput?.dataset.label || 'Only dessert';
+    const text='Guests: '+A+'/'+T+'/'+C+' · Appetite: '+appLabel+' · Role: '+roleLabel;
+    document.getElementById('input-summary').textContent=text;
+  }
+
+  function updatePricing(servings){
+    const unit=num(document.getElementById('price-unit').value);
+    const tax=num(document.getElementById('price-tax').value);
+    const fee=num(document.getElementById('price-fee').value);
+    const base=unit * servings;
+    const total=base * (1 + tax/100) + fee;
+    const people=num(document.getElementById('adults').value) + num(document.getElementById('teens').value) + num(document.getElementById('children').value);
+    const per=people>0 ? total/people : 0;
+    document.getElementById('price-total').textContent='Total: $'+(Math.round(total*100)/100).toFixed(2);
+    document.getElementById('price-per').textContent='Per person: $'+(Math.round(per*100)/100).toFixed(2);
+  }
+
+  function renderResults(){
+    const servings=calcServings();
+    document.getElementById('result-number').textContent=(Math.round(servings*10)/10).toFixed(1)+' servings';
+    updateSummary();
+    updatePricing(servings);
+  }
+
+  function updateAll(){ renderResults(); }
+
+  ['input','change'].forEach(evt => {
+    ['adults','teens','children','price-unit','price-tax','price-fee','item-input-a','item-input-b'].forEach(id => {
+      const el=document.getElementById(id); if(el) el.addEventListener(evt, updateAll);
+    });
+    document.querySelectorAll('input[name="appetite"], input[name="role"]').forEach(el => el.addEventListener(evt, updateAll));
+  });
+  document.addEventListener('DOMContentLoaded', updateAll);
+</script>
 </body>
 </html>
