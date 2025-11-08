@@ -1,0 +1,13 @@
+{
+  "slug": "brownies",
+  "adult_cooked_baseline": "1.5 pieces",
+  "raw_to_cooked_yield": "1.00",
+  "primary_purchase_unit": "pan",
+  "rounding_increment": "1 pan",
+  "purchase_forms": [],
+  "method_note": "\"The estimate above includes a small built-in cushion, so additional rounding up is generally unnecessary.\"",
+  "source_line": "brownies.html  default style Squares baseline adult 1.5; Buying default Homemade (pan); batches round to whole pans/packs.",
+  "status": "BUILT",
+  "category": "desserts",
+  "toppings_cushion": 0.1
+}
