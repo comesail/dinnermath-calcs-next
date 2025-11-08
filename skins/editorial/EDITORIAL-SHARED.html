@@ -208,6 +208,38 @@
   </div>
 
 <script>
+/* --- add this block --- */
+function getSlugFromLocation(){
+  const u = new URL(window.location.href);
+  const s = u.searchParams.get('slug');
+  if (s) return s;
+  const m = u.pathname.match(/(?:\/|^)([^\/]+)\.html$/);
+  return m ? m[1] : 'cheesecake';
+}
+
+async function bootstrap(){
+  const slug = getSlugFromLocation();
+
+  // If your skin file lives at /skins/editorial/, this relative path works:
+  const res = await fetch('../../data/' + slug + '.json');
+  if(!res.ok){ console.error('Failed to load data for', slug); return; }
+  const data = await res.json();
+  window.DM_DATA = data;  // make the fact-sheet available to your existing code
+
+  // Optional: update H1 and <title>
+  const h1 = document.querySelector('h1');
+  if(h1){
+    const nice = (data.display_name || slug.replace(/-/g,' '));
+    h1.textContent = nice + ' Quantity Calculator';
+    document.title = h1.textContent;
+  }
+
+  // Kick your current rendering
+  if (typeof updateAll === 'function') updateAll();
+  else if (typeof renderResults === 'function') renderResults();
+}
+/* --- end add --- */
+
   function num(v){ return Number(String(v).replace(/[^0-9.]/g,'')||0); }
 
   ['adults','teens','children'].forEach(function(id){
@@ -288,7 +320,7 @@
     });
     document.querySelectorAll('input[name="appetite"], input[name="role"]').forEach(el => el.addEventListener(evt, updateAll));
   });
-  document.addEventListener('DOMContentLoaded', updateAll);
+  document.addEventListener('DOMContentLoaded', bootstrap);
 </script>
 </body>
 </html>
