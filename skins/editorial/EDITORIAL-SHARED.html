@@ -84,7 +84,7 @@
     <div class="lede">Enter guests and settings (or tap a preset). We will estimate how many servings you need (planning estimate).</div>
 
     <div class="grid">
-<section class="box" id="box-steps">
+      <section class="box" id="box-steps">
         <div class="step" id="s1" aria-label="Step 1: Role or Meal-Share">
           <div class="bgnum">1</div>
           <p class="q">Will this be the only dessert you are serving?</p>
@@ -161,48 +161,57 @@
           </div>
         </div>
       </section>
-<section class="box" id="box-results">
+
+      <section class="box" id="box-results">
         <h3>Estimated servings</h3>
         <div class="results-figure" id="result-number">0.0 servings</div>
         <div class="summary" id="input-summary">Guests: 5/0/0 · Appetite: Moderate · Role: Only dessert</div>
         <div class="note" style="margin-top:8px">The estimate includes a small built-in cushion. Additional rounding is usually not needed.</div>
+      </section>
 
-        
-          </section>
-<div class="two-col">
-  <section class="box" id="box-pricing">
-    <h3>Pricing (optional)</h3>
-    <div class="gutter">
-          <div class="bigicon" aria-hidden="true"><svg viewBox="0 0 96 96" aria-hidden="true"><path d="M48 8v80" stroke="#1f3a93" stroke-width="4" fill="none"/><path d="M64 24c0-8-8-14-20-14-10 0-18 4-20 10-2 6 4 12 18 15 20 5 26 10 26 18 0 10-10 18-24 18-12 0-21-5-23-12" stroke="#1f3a93" stroke-width="4" fill="none"/></svg>
-          
-  <div class="pricing-grid">
-            <div><label>Unit price</label><input id="price-unit" type="text" placeholder="0.00"></div>
-  <div class="price-results">
-            <div class="pill" id="price-total">Total: --</div>
-</div>
-  </section>
-  <section class="box" id="box-finder">
-    <h3>Finder</h3>
-    <div class="gutter">
-          <div class="bigicon" aria-hidden="true">
-            <svg viewBox="0 0 96 96">
-              <ellipse cx="48" cy="82" rx="16" ry="6" fill="#e6ecff"/>
-              <path d="M48 80s22-19 22-38a22 22 0 1 0-44 0c0 19 22 38 22 38Z" fill="#e9f0ff" stroke="#1f3a93" stroke-width="2"/>
-              <circle cx="48" cy="42" r="8" fill="#ffffff" stroke="#1f3a93" stroke-width="2"/>
-              <rect x="42" y="38" width="12" height="10" rx="1" fill="#ffd54d" stroke="#1f3a93" stroke-width="1.5"/>
-              <rect x="42" y="38" width="12" height="4" fill="#ff6b6b"/>
-              <rect x="45" y="42" width="6" height="6" fill="#74c0fc"/>
-            </svg>
-          
-  <div class="finder-chips">
+      <div class="two-col">
+        <section class="box" id="box-pricing">
+          <h3>Pricing (optional)</h3>
+          <div class="gutter pricing">
+            <div class="bigicon" aria-hidden="true">
+              <svg viewBox="0 0 96 96" aria-hidden="true"><path d="M48 8v80" stroke="#1f3a93" stroke-width="4" fill="none"/><path d="M64 24c0-8-8-14-20-14-10 0-18 4-20 10-2 6 4 12 18 15 20 5 26 10 26 18 0 10-10 18-24 18-12 0-21-5-23-12" stroke="#1f3a93" stroke-width="4" fill="none"/></svg>
+            </div>
+            <div class="pricing-grid">
+              <div><label>Unit price</label><input id="price-unit" type="text" placeholder="0.00"></div>
+              <div><label>Tax %</label><input id="price-tax" type="text" placeholder="0"></div>
+              <div><label>Fees</label><input id="price-fee" type="text" placeholder="0.00"></div>
+            </div>
+            <div class="price-results">
+              <div class="pill" id="price-total">Total: --</div>
+              <div class="pill" id="price-note">Pricing is optional</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="box" id="box-finder">
+          <h3>Finder</h3>
+          <div class="gutter finder">
+            <div class="bigicon" aria-hidden="true">
+              <svg viewBox="0 0 96 96">
+                <ellipse cx="48" cy="82" rx="16" ry="6" fill="#e6ecff"/>
+                <path d="M48 80s22-19 22-38a22 22 0 1 0-44 0c0 19 22 38 22 38Z" fill="#e9f0ff" stroke="#1f3a93" stroke-width="2"/>
+                <circle cx="48" cy="42" r="8" fill="#ffffff" stroke="#1f3a93" stroke-width="2"/>
+                <rect x="42" y="38" width="12" height="10" rx="1" fill="#ffd54d" stroke="#1f3a93" stroke-width="1.5"/>
+                <rect x="42" y="38" width="12" height="4" fill="#ff6b6b"/>
+                <rect x="45" y="42" width="6" height="6" fill="#74c0fc"/>
+              </svg>
+            </div>
+            <div class="finder-chips">
               <a class="chip primary" href="https://www.google.com/maps/search/dessert+near+me" target="_blank" rel="noopener">Find dessert near me</a>
               <a class="chip" href="#" target="_blank" rel="noopener">Bakeries</a>
               <a class="chip" href="#" target="_blank" rel="noopener">Grocery stores</a>
             </div>
-</div>
-  </section>
-</div>
-</div><footer class="disclaimer">
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <footer class="disclaimer">
       Use for planning only. DinnerMath provides general portion and cost estimates based on USDA FoodData Central guidelines, catering standards, and typical averages. Results depend on the information you enter. DinnerMath is not responsible for purchasing decisions, food safety, or outcomes based on these estimates. (c) 2025 DinnerMath. All rights reserved.
     </footer>
   </div>
@@ -210,12 +219,15 @@
 <script>
   function num(v){ return Number(String(v).replace(/[^0-9.]/g,'')||0); }
 
+  // select-all behavior on number inputs
   ['adults','teens','children'].forEach(function(id){
     const el=document.getElementById(id);
     if(!el) return;
     el.addEventListener('focus', function(){ this.select(); });
     el.addEventListener('click', function(){ this.select(); });
   });
+
+  // presets
   function applyPreset(n){
     const A=document.getElementById('adults'),T=document.getElementById('teens'),C=document.getElementById('children');
     if(!A||!T||!C) return; A.value=n; T.value=0; C.value=0; updateAll(); A.focus(); A.select();
@@ -239,36 +251,37 @@
     if(e.key==='Enter'||e.key===' '){ e.preventDefault(); if(a.hasAttribute('data-reset')){resetAll();} else {applyPreset(Number(a.getAttribute('data-total')||0));} }
   });
 
- function calcServings()
-  // If a per-calculator rules file loaded, use it
-  if (typeof window.DM_COMPUTE === 'function') {
+  // --- math bridge ---
+  function calcServings(){
+    // If a per-calculator rules file loaded, use it
+    if (typeof window.DM_COMPUTE === 'function') {
+      const A = Number(document.getElementById('adults')?.value || 0);
+      const T = Number(document.getElementById('teens')?.value || 0);
+      const C = Number(document.getElementById('children')?.value || 0);
+      const role = parseFloat(document.querySelector('input[name="role"]:checked')?.value || '1.00');
+      const appetite = parseFloat(document.querySelector('input[name="appetite"]:checked')?.value || '1.00');
+
+      const out = window.DM_COMPUTE({
+        adults: A, teens: T, children: C,
+        role, appetite,
+        toppings: document.getElementById('toppings')?.value === 'yes'
+      });
+
+      return Number(out?.value || 0); // renderer expects a number
+    }
+
+    // Fallback only if no rules file
     const A = Number(document.getElementById('adults')?.value || 0);
     const T = Number(document.getElementById('teens')?.value || 0);
     const C = Number(document.getElementById('children')?.value || 0);
     const role = parseFloat(document.querySelector('input[name="role"]:checked')?.value || '1.00');
     const appetite = parseFloat(document.querySelector('input[name="appetite"]:checked')?.value || '1.00');
-
-    const out = window.DM_COMPUTE({
-      adults: A, teens: T, children: C,
-      role, appetite,
-      toppings: document.getElementById('toppings')?.value === 'yes'
-    });
-
-    // Your renderer expects a NUMBER; DM_COMPUTE returns { value, unit }
-    return Number(out?.value || 0);
+    const ae = A + 0.75*T + 0.50*C; // desserts AE
+    const baseline = 1.0;
+    return ae * baseline * role * appetite;
   }
 
-  // Fallback only if a rules file didn’t load
-  const A = Number(document.getElementById('adults')?.value || 0);
-  const T = Number(document.getElementById('teens')?.value || 0);
-  const C = Number(document.getElementById('children')?.value || 0);
-  const role = parseFloat(document.querySelector('input[name="role"]:checked')?.value || '1.00');
-  const appetite = parseFloat(document.querySelector('input[name="appetite"]:checked')?.value || '1.00');
-  const ae = A + 0.75*T + 0.50*C; // desserts AE
-  const baseline = 1.0;           // harmless fallback
-  return ae * baseline * role * appetite;
-}
-
+  // summary line
   function updateSummary(){
     const apInput=document.querySelector('input[name="appetite"]:checked');
     const rlInput=document.querySelector('input[name="role"]:checked');
@@ -278,85 +291,69 @@
     const appLabel=apInput?.dataset.label || 'Moderate';
     const roleLabel=rlInput?.dataset.label || 'Only dessert';
     const text='Guests: '+A+'/'+T+'/'+C+' · Appetite: '+appLabel+' · Role: '+roleLabel;
-    document.getElementById('input-summary').textContent=text;
+    const el=document.getElementById('input-summary'); if(el) el.textContent=text;
   }
 
+  // pricing: safe if controls are missing
   function updatePricing(servings){
-  // Safely read pricing inputs if they exist; otherwise bail out quietly.
-  const unitEl = document.getElementById('price-unit');
-  const taxEl  = document.getElementById('price-tax');
-  const feeEl  = document.getElementById('price-fee');
+    const unitEl = document.getElementById('price-unit');
+    const taxEl  = document.getElementById('price-tax');
+    const feeEl  = document.getElementById('price-fee');
+    if (!unitEl && !taxEl && !feeEl) return;
 
-  // If none of the pricing controls are on this page, skip pricing entirely.
-  if (!unitEl && !taxEl && !feeEl) return;
+    const unit = unitEl ? Number(unitEl.value || 0) : 0;
+    const tax  = taxEl  ? Number(taxEl.value  || 0) : 0;
+    const fee  = feeEl  ? Number(feeEl.value  || 0) : 0;
 
-  const unit = unitEl ? Number(unitEl.value || 0) : 0;     // $ per unit/serving
-  const tax  = taxEl  ? Number(taxEl.value  || 0) : 0;     // %
-  const fee  = feeEl  ? Number(feeEl.value  || 0) : 0;     // flat $
+    const subtotal = (Number(servings) || 0) * unit;
+    const total = subtotal * (1 + tax/100) + fee;
 
-  const subtotal = (Number(servings) || 0) * unit;
-  const total = subtotal * (1 + tax/100) + fee;
-
-  const out = document.getElementById('price-total');
-  if (out) out.textContent = total.toFixed(2);
+    const out = document.getElementById('price-total');
+    if (out) out.textContent = total.toFixed(2);
   }
 
- function renderResults(){
-  // Get servings from calcServings (number)
-  const servings = calcServings();
+  // render + driver
+  function renderResults(){
+    const servings = calcServings();
 
-  // Write the big number
-  const out = document.getElementById('result-number');
-  if (out) out.textContent = (Math.round(servings * 10) / 10).toFixed(1) + ' servings';
+    const out = document.getElementById('result-number');
+    if (out) out.textContent = (Math.round(servings * 10) / 10).toFixed(1) + ' servings';
 
-  // Pricing (only if present)
-  if (typeof updatePricing === 'function') {
-    try { updatePricing(servings); } catch (e) { console.warn('Pricing skipped:', e); }
+    if (typeof updatePricing === 'function') { try { updatePricing(servings); } catch(e) { console.warn('Pricing skipped:', e); } }
+    if (typeof updateSummary === 'function') { try { updateSummary(); } catch(e) {} }
   }
+  function updateAll(){ renderResults(); }
 
-  // Summary (only if you have this function)
-  if (typeof updateSummary === 'function') {
-    try { updateSummary(); } catch (e) { /* ignore */ }
-  }
-}
-
-function updateAll(){
-  // Your existing code calls this; keep it minimal and safe
-  renderResults();
-}
-
-
+  // wire inputs
   ['input','change'].forEach(evt => {
     ['adults','teens','children','price-unit','price-tax','price-fee','item-input-a','item-input-b'].forEach(id => {
       const el=document.getElementById(id); if(el) el.addEventListener(evt, updateAll);
     });
     document.querySelectorAll('input[name="appetite"], input[name="role"]').forEach(el => el.addEventListener(evt, updateAll));
   });
- function getSlugFromLocation(){
-  const u = new URL(window.location.href);
-  const s = u.searchParams.get('slug');
-  if (s) return s;
-  const m = u.pathname.match(/(?:\/|^)([^\/]+)\.html$/);
-  return m ? m[1] : 'cheesecake';
-}
 
-function loadRulesAndStart(){
-  const slug = getSlugFromLocation();
+  // slug + rules loader (with cache-buster)
+  function getSlugFromLocation(){
+    const u = new URL(window.location.href);
+    const s = u.searchParams.get('slug');
+    if (s) return s;
+    const m = u.pathname.match(/(?:\/|^)([^\/]+)\.html$/);
+    return m ? m[1] : 'cheesecake';
+  }
+  function loadRulesAndStart(){
+    const slug = getSlugFromLocation();
 
-  // Optional: set the H1 from the slug. Remove if you already set title elsewhere.
-  const h1 = document.querySelector('h1');
-  if (h1) h1.textContent = slug.replace(/-/g,' ') + ' Quantity Calculator';
+    const h1 = document.querySelector('h1');
+    if (h1) h1.textContent = slug.replace(/-/g,' ') + ' Quantity Calculator';
 
-  // Load per-calculator rules (you already uploaded these):
-  const s = document.createElement('script');
-  s.src = '../../rules/' + slug + '.js';   // path: skins/editorial -> ../../rules/
-  s.onload = () => updateAll();            // run your existing render once rules are ready
-  s.onerror = () => { console.error('Missing rules for', slug); updateAll(); };
-  document.head.appendChild(s);
-}
-
-document.addEventListener('DOMContentLoaded', loadRulesAndStart);
-
+    const s = document.createElement('script');
+    s.src = '../../rules/' + slug + '.js?v=' + Date.now(); // cache-buster
+    s.onload = () => { console.log('RULES LOADED:', slug); updateAll(); };
+    s.onerror = () => { console.error('Missing rules for', slug); updateAll(); };
+    document.head.appendChild(s);
+  }
+  document.addEventListener('DOMContentLoaded', loadRulesAndStart);
 </script>
 </body>
 </html>
+
