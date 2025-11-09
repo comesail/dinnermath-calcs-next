@@ -239,14 +239,36 @@
     if(e.key==='Enter'||e.key===' '){ e.preventDefault(); if(a.hasAttribute('data-reset')){resetAll();} else {applyPreset(Number(a.getAttribute('data-total')||0));} }
   });
 
-  function calcServings(){
-    const A=num(document.getElementById('adults').value);
-    const T=num(document.getElementById('teens').value);
-    const C=num(document.getElementById('children').value);
-    const role=parseFloat(document.querySelector('input[name="role"]:checked')?.value || '1.00');
-    const appetite=parseFloat(document.querySelector('input[name="appetite"]:checked')?.value || '1.00');
-    const ae=A + 0.8*T + 0.6*C; const baseline=1.0;
-    return ae * baseline * role * appetite;
+ function calcServings(){
+  // If a per-calculator rules file loaded, use it
+  if (typeof window.DM_COMPUTE === 'function') {
+    const A = Number(document.getElementById('adults')?.value || 0);
+    const T = Number(document.getElementById('teens')?.value || 0);
+    const C = Number(document.getElementById('children')?.value || 0);
+    const role = parseFloat(document.querySelector('input[name="role"]:checked')?.value || '1.00');
+    const appetite = parseFloat(document.querySelector('input[name="appetite"]:checked')?.value || '1.00');
+
+    const out = window.DM_COMPUTE({
+      adults: A, teens: T, children: C,
+      role, appetite,
+      toppings: document.getElementById('toppings')?.value === 'yes'
+    });
+
+    // Your renderer expects a NUMBER; DM_COMPUTE returns { value, unit }
+    return Number(out?.value || 0);
+  }
+
+  // Fallback only if a rules file didn’t load
+  const A = Number(document.getElementById('adults')?.value || 0);
+  const T = Number(document.getElementById('teens')?.value || 0);
+  const C = Number(document.getElementById('children')?.value || 0);
+  const role = parseFloat(document.querySelector('input[name="role"]:checked')?.value || '1.00');
+  const appetite = parseFloat(document.querySelector('input[name="appetite"]:checked')?.value || '1.00');
+  const ae = A + 0.75*T + 0.50*C; // desserts AE
+  const baseline = 1.0;           // harmless fallback
+  return ae * baseline * role * appetite;
+}
+
   }
 
   function updateSummary(){
@@ -288,7 +310,31 @@
     });
     document.querySelectorAll('input[name="appetite"], input[name="role"]').forEach(el => el.addEventListener(evt, updateAll));
   });
-  document.addEventListener('DOMContentLoaded', updateAll);
+ function getSlugFromLocation(){
+  const u = new URL(window.location.href);
+  const s = u.searchParams.get('slug');
+  if (s) return s;
+  const m = u.pathname.match(/(?:\/|^)([^\/]+)\.html$/);
+  return m ? m[1] : 'cheesecake';
+}
+
+function loadRulesAndStart(){
+  const slug = getSlugFromLocation();
+
+  // Optional: set the H1 from the slug. Remove if you already set title elsewhere.
+  const h1 = document.querySelector('h1');
+  if (h1) h1.textContent = slug.replace(/-/g,' ') + ' Quantity Calculator';
+
+  // Load per-calculator rules (you already uploaded these):
+  const s = document.createElement('script');
+  s.src = '../../rules/' + slug + '.js';   // path: skins/editorial -> ../../rules/
+  s.onload = () => updateAll();            // run your existing render once rules are ready
+  s.onerror = () => { console.error('Missing rules for', slug); updateAll(); };
+  document.head.appendChild(s);
+}
+
+document.addEventListener('DOMContentLoaded', loadRulesAndStart);
+
 </script>
 </body>
 </html>
