@@ -239,7 +239,7 @@
     if(e.key==='Enter'||e.key===' '){ e.preventDefault(); if(a.hasAttribute('data-reset')){resetAll();} else {applyPreset(Number(a.getAttribute('data-total')||0));} }
   });
 
- function calcServings(){
+ function calcServings()
   // If a per-calculator rules file loaded, use it
   if (typeof window.DM_COMPUTE === 'function') {
     const A = Number(document.getElementById('adults')?.value || 0);
