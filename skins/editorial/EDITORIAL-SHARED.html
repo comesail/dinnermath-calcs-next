@@ -304,11 +304,22 @@
   }
 
   function renderResults(){
-    const servings=calcServings();
-    document.getElementById('result-number').textContent=(Math.round(servings*10)/10).toFixed(1)+' servings';
-    updateSummary();
-    updatePricing(servings);
+  // your existing flow: get servings, write the big number, then pricing & summary
+  const servings = calcServings();
+
+  // Write the headline number
+  const out = document.getElementById('result-number');
+  if (out) out.textContent = (Math.round(servings*10)/10).toFixed(1) + ' servings';
+
+  // Pricing: only call if the function exists (avoids crashes when pricing controls aren't present)
+  if (typeof updatePricing === 'function') {
+    try { updatePricing(servings); } catch(e){ console.warn('Pricing skipped:', e); }
   }
+
+  // Summary (leave as-is if you already have updateSummary)
+  if (typeof updateSummary === 'function') updateSummary();
+}
+
 
   function updateAll(){ renderResults(); }
 
