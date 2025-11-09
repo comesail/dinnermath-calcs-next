@@ -303,25 +303,30 @@
   if (out) out.textContent = total.toFixed(2);
   }
 
-  function renderResults(){
-  // your existing flow: get servings, write the big number, then pricing & summary
+ function renderResults(){
+  // Get servings from calcServings (number)
   const servings = calcServings();
 
-  // Write the headline number
+  // Write the big number
   const out = document.getElementById('result-number');
-  if (out) out.textContent = (Math.round(servings*10)/10).toFixed(1) + ' servings';
+  if (out) out.textContent = (Math.round(servings * 10) / 10).toFixed(1) + ' servings';
 
-  // Pricing: only call if the function exists (avoids crashes when pricing controls aren't present)
+  // Pricing (only if present)
   if (typeof updatePricing === 'function') {
-    try { updatePricing(servings); } catch(e){ console.warn('Pricing skipped:', e); }
+    try { updatePricing(servings); } catch (e) { console.warn('Pricing skipped:', e); }
   }
 
-  // Summary (leave as-is if you already have updateSummary)
-  if (typeof updateSummary === 'function') updateSummary();
+  // Summary (only if you have this function)
+  if (typeof updateSummary === 'function') {
+    try { updateSummary(); } catch (e) { /* ignore */ }
+  }
 }
 
+function updateAll(){
+  // Your existing code calls this; keep it minimal and safe
+  renderResults();
+}
 
-  function updateAll(){ renderResults(); }
 
   ['input','change'].forEach(evt => {
     ['adults','teens','children','price-unit','price-tax','price-fee','item-input-a','item-input-b'].forEach(id => {
