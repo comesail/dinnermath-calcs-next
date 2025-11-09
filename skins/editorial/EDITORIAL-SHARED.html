@@ -52,6 +52,7 @@
   a.preset:hover{border-bottom-color:var(--accent)}
 
   .results-figure{font-family:Outfit,Inter,sans-serif;font-weight:300;font-size:48px;margin:6px 0 8px 0;color:#111;text-align:center}
+  .results-secondary,.results-extra{font-size:14px;color:#2c2c2c;text-align:center;margin:4px 0}
   .summary{text-align:center;margin:0 0 8px 0;color:#2c2c2c}
   .note{font-size:13px;color:#5c5c5c;text-align:center}
 
@@ -73,7 +74,7 @@
   .finder-chips{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
   .chip{display:inline-flex;align-items:center;gap:8px;border:1px solid #CFCFCF;padding:12px 18px;text-decoration:none;color:#111;background:#fff;border-radius:9999px}
   .chip:hover{border-color:#BDBDBD}
-  .chip.primary{border:2px solid var(--royal); color:var(--royal); font-weight:600}
+  .chip.primary{border:2px solid (--royal); color:var(--royal); font-weight:600}
 
   footer.disclaimer{margin:22px 0 8px 0;text-align:center;font-size:12px;color:#6b6b6b;line-height:1.6}
 </style>
@@ -163,8 +164,10 @@
       </section>
 
       <section class="box" id="box-results">
-        <h3>Estimated servings</h3>
+        <h3 id="result-label">Estimated servings</h3>
         <div class="results-figure" id="result-number">0.0 servings</div>
+        <div class="results-secondary" id="result-secondary" style="display:none"></div>
+        <div class="results-extra" id="result-extra" style="display:none"></div>
         <div class="summary" id="input-summary">Guests: 5/0/0 · Appetite: Moderate · Role: Only dessert</div>
         <div class="note" style="margin-top:8px">The estimate includes a small built-in cushion. Additional rounding is usually not needed.</div>
       </section>
@@ -267,6 +270,8 @@
         toppings: document.getElementById('toppings')?.value === 'yes'
       });
 
+      // out can be { value, unit, result_label, secondary_text, extra_text, lede_detail, schema }
+      window.__DM_LAST = out || {};
       return Number(out?.value || 0); // renderer expects a number
     }
 
@@ -278,7 +283,8 @@
     const appetite = parseFloat(document.querySelector('input[name="appetite"]:checked')?.value || '1.00');
     const ae = A + 0.75*T + 0.50*C; // desserts AE
     const baseline = 1.0;
-    return ae * baseline * role * appetite;
+    window.__DM_LAST = { value: ae * baseline * role * appetite, unit: 'servings' };
+    return window.__DM_LAST.value;
   }
 
   // summary line
@@ -312,12 +318,47 @@
     if (out) out.textContent = total.toFixed(2);
   }
 
+  // helpers
+  function titleCaseSlug(slug){
+    return slug.split('-').map(s=>s.charAt(0).toUpperCase()+s.slice(1)).join(' ');
+  }
+  function fmtPrimary(val, unit){
+    const n = Number(val);
+    const isInt = Math.abs(n - Math.round(n)) < 0.0001;
+    const v = isInt ? String(Math.round(n)) : (Math.round(n*10)/10).toFixed(1);
+    return unit ? (v+' '+unit) : v+' servings';
+  }
+
   // render + driver
   function renderResults(){
     const servings = calcServings();
+    const outObj = window.__DM_LAST || {};
 
-    const out = document.getElementById('result-number');
-    if (out) out.textContent = (Math.round(servings * 10) / 10).toFixed(1) + ' servings';
+    // Label (from rules if provided)
+    const labelEl = document.getElementById('result-label');
+    const labelTxt = outObj.result_label || window.DM_RESULT_LABEL || 'Estimated servings';
+    if (labelEl) labelEl.textContent = labelTxt;
+
+    // Primary number
+    const primaryEl = document.getElementById('result-number');
+    const unit = outObj.unit || 'servings';
+    if (primaryEl) primaryEl.textContent = fmtPrimary(servings, unit);
+
+    // Secondary line (optional)
+    const secEl = document.getElementById('result-secondary');
+    const secTxt = outObj.secondary_text || window.DM_SECONDARY || '';
+    if (secEl){
+      if (secTxt){ secEl.style.display='block'; secEl.textContent = secTxt; }
+      else { secEl.style.display='none'; secEl.textContent=''; }
+    }
+
+    // Extra line (optional, ASCII only)
+    const extraEl = document.getElementById('result-extra');
+    const extraTxt = outObj.extra_text || window.DM_EXTRA || '';
+    if (extraEl){
+      if (extraTxt){ extraEl.style.display='block'; extraEl.textContent = extraTxt; }
+      else { extraEl.style.display='none'; extraEl.textContent=''; }
+    }
 
     if (typeof updatePricing === 'function') { try { updatePricing(servings); } catch(e) { console.warn('Pricing skipped:', e); } }
     if (typeof updateSummary === 'function') { try { updateSummary(); } catch(e) {} }
@@ -332,7 +373,7 @@
     document.querySelectorAll('input[name="appetite"], input[name="role"]').forEach(el => el.addEventListener(evt, updateAll));
   });
 
-  // slug + rules loader (with cache-buster)
+  // slug + rules loader (with cache-buster) + lede override + schema
   function getSlugFromLocation(){
     const u = new URL(window.location.href);
     const s = u.searchParams.get('slug');
@@ -340,15 +381,50 @@
     const m = u.pathname.match(/(?:\/|^)([^\/]+)\.html$/);
     return m ? m[1] : 'cheesecake';
   }
+  function injectSchema(nameTxt, descTxt){
+    try{
+      const schema = {
+        "@context":"https://schema.org",
+        "@type":"WebApplication",
+        "name": nameTxt,
+        "applicationCategory":"FoodCalculator",
+        "operatingSystem":"All",
+        "description": descTxt
+      };
+      const tag = document.createElement('script');
+      tag.type = 'application/ld+json';
+      tag.text = JSON.stringify(schema);
+      document.head.appendChild(tag);
+    }catch(e){ /* silent */ }
+  }
   function loadRulesAndStart(){
     const slug = getSlugFromLocation();
 
     const h1 = document.querySelector('h1');
-    if (h1) h1.textContent = slug.replace(/-/g,' ') + ' Quantity Calculator';
+    if (h1) h1.textContent = titleCaseSlug(slug) + ' Quantity Calculator';
 
     const s = document.createElement('script');
     s.src = '../../rules/' + slug + '.js?v=' + Date.now(); // cache-buster
-    s.onload = () => { console.log('RULES LOADED:', slug); updateAll(); };
+    s.onload = () => {
+      console.log('RULES LOADED:', slug);
+
+      // Lede second sentence (optional)
+      const ledeEl = document.querySelector('.lede');
+      const ledeDetail = (window.DM_LEDE_DETAIL) || (window.__DM_LAST && window.__DM_LAST.lede_detail);
+      if (ledeEl && ledeDetail){
+        // ensure ASCII-only
+        const detail = String(ledeDetail).replace(/[^\x20-\x7E]/g,'');
+        ledeEl.textContent = ledeEl.textContent.replace(/\s*$/, '') + ' ' + detail;
+      }
+
+      // Schema (optional values from rules)
+      const computedName = titleCaseSlug(slug) + ' Quantity Calculator';
+      const schemaName = (window.DM_SCHEMA && window.DM_SCHEMA.name) || computedName;
+      const schemaDesc = (window.DM_SCHEMA && window.DM_SCHEMA.description) || 'Interactive calculator to estimate amounts for this item based on guests, appetite, and role.';
+      injectSchema(schemaName, schemaDesc);
+
+      updateAll();
+    };
     s.onerror = () => { console.error('Missing rules for', slug); updateAll(); };
     document.head.appendChild(s);
   }
@@ -356,4 +432,5 @@
 </script>
 </body>
 </html>
+
 
