@@ -29,4 +29,22 @@
     const rounded = roundDessert(total);
     return { value: rounded, unit: BASE.u };
   };
+    // --- Cheesecake UI & Copy (adds the category-specific text and hides Step 4) ---
+  window.DM_UI = {
+    itemControls: [],
+    hideItemInputs: true,
+    pricingUnitLabel: 'per slice'
+  };
+
+  window.DM_COPY = {
+    h1: 'Cheesecake Quantity Calculator',
+    lede2: 'We start with a standard slice and customize for guests, appetite, and role.',
+    results: {
+      label: 'Estimated number of pieces to buy',
+      second_line: 'Estimated from {guests} guests – cheesecake slice{appetite}{role}.',
+      note: 'The estimate includes a small built-in cushion. Additional rounding is usually not needed.'
+    }
+  };
+})();   // <-- Leave this line exactly where it is!
+
 })();
