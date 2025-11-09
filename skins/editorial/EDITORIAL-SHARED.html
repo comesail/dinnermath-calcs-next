@@ -284,15 +284,23 @@
   }
 
   function updatePricing(servings){
-    const unit=num(document.getElementById('price-unit').value);
-    const tax=num(document.getElementById('price-tax').value);
-    const fee=num(document.getElementById('price-fee').value);
-    const base=unit * servings;
-    const total=base * (1 + tax/100) + fee;
-    const people=num(document.getElementById('adults').value) + num(document.getElementById('teens').value) + num(document.getElementById('children').value);
-    const per=people>0 ? total/people : 0;
-    document.getElementById('price-total').textContent='Total: $'+(Math.round(total*100)/100).toFixed(2);
-    document.getElementById('price-per').textContent='Per person: $'+(Math.round(per*100)/100).toFixed(2);
+  // Safely read pricing inputs if they exist; otherwise bail out quietly.
+  const unitEl = document.getElementById('price-unit');
+  const taxEl  = document.getElementById('price-tax');
+  const feeEl  = document.getElementById('price-fee');
+
+  // If none of the pricing controls are on this page, skip pricing entirely.
+  if (!unitEl && !taxEl && !feeEl) return;
+
+  const unit = unitEl ? Number(unitEl.value || 0) : 0;     // $ per unit/serving
+  const tax  = taxEl  ? Number(taxEl.value  || 0) : 0;     // %
+  const fee  = feeEl  ? Number(feeEl.value  || 0) : 0;     // flat $
+
+  const subtotal = (Number(servings) || 0) * unit;
+  const total = subtotal * (1 + tax/100) + fee;
+
+  const out = document.getElementById('price-total');
+  if (out) out.textContent = total.toFixed(2);
   }
 
   function renderResults(){
