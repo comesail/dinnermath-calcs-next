@@ -3,243 +3,292 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dessert Quantity Calculator</title>
+<title>EDITORIAL v1.2 — Desserts (Boxsteps Minimal v5)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@200;300;400;600;700&display=swap" rel="stylesheet">
 <style>
-  html,body{margin:0;background:#fafafa;color:#111;font-family:system-ui,Segoe UI,Arial,sans-serif}
+  :root{
+    --page:#FAFAFA; --card:#FFFFFF; --line:#EAEAEA; --text:#111; --muted:#5A5A5A;
+    --accent:#111; --royal:#1f3a93;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--page);color:var(--text);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}
   .wrap{max-width:1080px;margin:36px auto;padding:0 20px}
-  h1{font-weight:300;font-size:38px;line-height:1.06;margin:0 0 6px;text-align:center}
-  .lede{max-width:70ch;color:#555;margin:4px auto 24px;text-align:center;font-weight:300}
-  .box{background:#fff;border:1px solid #eaeaea;padding:20px;margin:16px 0}
-  .row{display:flex;gap:12px;flex-wrap:wrap}
-  .row > *{flex:1 1 120px}
-  .label{font-weight:600;margin:8px 0}
-  .radio-card{border:1px solid #eaeaea;padding:14px;margin:8px 0}
-  .muted{color:#666;font-size:14px}
-  .step{color:#d7d7d7;font-size:32px;font-weight:300;margin:24px 0 8px}
-  .results-figure{font-size:56px;font-weight:300;margin:8px 0}
-  .summary{color:#555;margin-top:8px}
-  input[type="number"]{width:100%;padding:10px;border:1px solid #ddd}
+
+  h1{font-family:Outfit,Inter,sans-serif;font-weight:200;font-size:38px;line-height:1.06;margin:0 0 6px 0;text-align:center}
+  .lede{max-width:70ch;color:var(--muted);margin:4px auto 24px auto;text-align:center;font-weight:300}
+
+  .grid{display:block}
+  .two-col{display:grid;gap:16px;grid-template-columns:1fr}
+  @media (min-width:900px){ .two-col{grid-template-columns:1fr 1fr} }
+
+  .box{background:var(--card);border:1px solid var(--line);padding:20px;border-radius:0}
+  .box h2,.box h3{font-family:Inter,system-ui,sans-serif;font-weight:700;letter-spacing:.10em;text-transform:uppercase;
+                  font-size:13px;color:#2c2c2c;margin:0 0 10px 0;text-align:center}
+
+  .step{position:relative;border-top:1px solid var(--line);padding:28px 14px 18px}
+  .step:first-child{border-top:0}
+  .q{position:relative;z-index:2;margin:0 auto 12px auto;text-align:center;font-weight:700;font-size:19px;max-width:56ch}
+  .helper{margin:-4px auto 12px auto;text-align:center;font-size:13px;color:var(--muted)}
+  .bgnum{position:absolute;left:8px;top:0;font-size:86px;line-height:1;font-weight:200;
+         font-family:Outfit,Inter,sans-serif;color:var(--royal);opacity:.10;z-index:1;user-select:none;pointer-events:none}
+
+  .cards{display:grid;gap:10px;max-width:740px;margin:0 auto}
+  .card-opt{position:relative;border:1px solid var(--line);background:#fff;cursor:pointer;transition:border-color .12s, box-shadow .12s;border-radius:0}
+  .card-opt input{position:absolute;left:50%;top:12px;transform:translateX(-50%);margin:0}
+  .card-opt .inner{padding:42px 16px 16px;text-align:center;max-width:60ch;margin:0 auto}
+  .card-opt .ttl{display:block;font-weight:700}
+  .card-opt .sub{display:block;color:var(--muted);font-size:13px;margin-top:6px;line-height:1.45}
+  .card-opt:hover{border-color:#CFCFCF;box-shadow:0 8px 22px rgba(0,0,0,.06)}
+  .card-opt input:checked ~ .inner .ttl{color:var(--accent)}
+
+  .row{display:grid;gap:10px;max-width:560px;margin:0 auto}
+  .row.cols-3{grid-template-columns: 1fr 1fr 1fr}
+  label{font-size:13px;color:var(--muted)}
+  input[type=number], input[type=text]{width:100%;padding:10px 12px;border:1px solid #DADADA;background:#fff;font-size:15px;border-radius:0}
+  input[type=number]:focus, input[type=text]:focus{outline:2px solid var(--accent);outline-offset:2px}
+  .presets{display:flex;gap:12px;justify-content:center;margin-top:8px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+  .presets span{color:var(--muted)}
+  a.preset{color:var(--accent);text-decoration:none;border-bottom:1px dotted transparent;transition:border-color .12s}
+  a.preset:hover{border-bottom-color:var(--accent)}
+
+  .results-figure{font-family:Outfit,Inter,sans-serif;font-weight:300;font-size:48px;margin:6px 0 8px 0;color:#111;text-align:center}
+  .summary{text-align:center;margin:0 0 8px 0;color:#2c2c2c}
+  .note{font-size:13px;color:#5c5c5c;text-align:center}
+
+  .divider{height:1px;background:#EEE;margin:14px 0}
+
+  .gutter{position:relative;padding-left:24px;min-height:96px}
+  .gutter .bigicon{position:absolute;left:-6px;top:50%;transform:translateY(-50%);opacity:.12}
+  .gutter.pricing .bigicon{left:-30px}
+  .gutter.finder .bigicon{left:-18px}
+  .bigicon svg{width:86px;height:86px;display:block}
+
+  .pricing-grid{display:grid;gap:10px;grid-template-columns:1fr 1fr 1fr;max-width:740px;margin:8px auto}
+  .price-results{display:grid;gap:6px;grid-template-columns:1fr 1fr;max-width:740px;margin:6px auto 0}
+  .pill{display:inline-block;padding:6px 10px;border-radius:0;border:1px solid #DADADA;font-size:12px}
+
+  .finder{margin-top:4px}
+  .finder-title{display:flex; align-items:center; justify-content:center; gap:10px; margin:8px 0 12px;
+                font-family:Inter,system-ui,sans-serif; font-weight:700; letter-spacing:.10em; text-transform:uppercase; font-size:16px;}
+  .finder-chips{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+  .chip{display:inline-flex;align-items:center;gap:8px;border:1px solid #CFCFCF;padding:12px 18px;text-decoration:none;color:#111;background:#fff;border-radius:9999px}
+  .chip:hover{border-color:#BDBDBD}
+  .chip.primary{border:2px solid var(--royal); color:var(--royal); font-weight:600}
+
+  footer.disclaimer{margin:22px 0 8px 0;text-align:center;font-size:12px;color:#6b6b6b;line-height:1.6}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="box" style="text-align:center">
+  <div class="wrap">
     <h1>{DESSERT NAME} Quantity Calculator</h1>
-    <p class="lede">Enter guests and settings (or tap a preset). We will estimate how many servings you need (planning estimate).</p>
-  </header>
+    <div class="lede">Enter guests and settings (or tap a preset). We will estimate how many servings you need (planning estimate).</div>
 
-  <!-- STEP 1: ROLE FIRST (your requested order) -->
-  <section class="box" aria-label="Step 1 Role">
-    <div class="step">1</div>
-    <h3 class="label">Will this be the only dessert you are serving?</h3>
-    <p class="muted">We will use this starting portion to customize your results.</p>
-    <label class="radio-card">
-      <input type="radio" name="role" value="1.00" data-label="Only dessert" checked> Only dessert (full serving)
-      <div class="muted">Full servings.</div>
-    </label>
-    <label class="radio-card">
-      <input type="radio" name="role" value="0.60" data-label="One of several desserts"> One of several desserts
-      <div class="muted">Smaller serving.</div>
-    </label>
-    <label class="radio-card">
-      <input type="radio" name="role" value="0.45" data-label="Small portion"> Small portion
-      <div class="muted">Small plated portion.</div>
-    </label>
-    <label class="radio-card">
-      <input type="radio" name="role" value="0.35" data-label="Tasting bite"> Tasting bite
-      <div class="muted">Tiny sampling size.</div>
-    </label>
+    <div class="grid">
+<section class="box" id="box-steps">
+        <div class="step" id="s1" aria-label="Step 1: Role or Meal-Share">
+          <div class="bgnum">1</div>
+          <p class="q">Will this be the only dessert you are serving?</p>
+          <p class="helper">We will use this starting portion to customize your results.</p>
+          <div role="radiogroup" aria-label="Role" class="cards">
+            <label class="card-opt">
+              <input type="radio" name="role" value="1.00" data-label="Only dessert" checked>
+              <div class="inner"><span class="ttl">Only dessert (full serving)</span><span class="sub">Full servings.</span></div>
+            </label>
+            <label class="card-opt">
+              <input type="radio" name="role" value="0.60" data-label="One of several desserts">
+              <div class="inner"><span class="ttl">One of several desserts</span><span class="sub">Smaller serving.</span></div>
+            </label>
+            <label class="card-opt">
+              <input type="radio" name="role" value="0.45" data-label="Small portion">
+              <div class="inner"><span class="ttl">Small portion</span><span class="sub">Tasting size.</span></div>
+            </label>
+            <label class="card-opt">
+              <input type="radio" name="role" value="0.35" data-label="Tiny bite">
+              <div class="inner"><span class="ttl">Tiny bite</span><span class="sub">Mini portion.</span></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="step" id="s2" aria-label="Step 2: Guests">
+          <div class="bgnum">2</div>
+          <p class="q">How many people are you serving?</p>
+          <div class="row cols-3">
+            <div><label>Adults</label><input id="adults" type="number" min="0" value="5" autofocus></div>
+            <div><label>Teens</label><input id="teens" type="number" min="0" value="0"></div>
+            <div><label>Children</label><input id="children" type="number" min="0" value="0"></div>
+          </div>
+          <div class="presets" aria-label="Quick presets">
+            <span>Quick presets:</span>
+            <a class="preset" data-total="10" role="button" tabindex="0">10</a>
+            <a class="preset" data-total="25" role="button" tabindex="0">25</a>
+            <a class="preset" data-total="50" role="button" tabindex="0">50</a>
+            <a class="preset" data-total="100" role="button" tabindex="0">100</a>
+            <a class="preset" data-reset="true" role="button" tabindex="0">Reset</a>
+          </div>
+        </div>
+
+        <div class="step" id="s3" aria-label="Step 3: Appetite">
+          <div class="bgnum">3</div>
+          <p class="q">How generous would you like the portions to be?</p>
+          <div role="radiogroup" aria-label="Appetite" class="cards">
+            <label class="card-opt">
+              <input type="radio" name="appetite" value="0.90" data-label="Light">
+              <div class="inner"><span class="ttl">Light</span><span class="sub">Smaller portions for lighter appetites.</span></div>
+            </label>
+            <label class="card-opt">
+              <input type="radio" name="appetite" value="1.00" data-label="Moderate" checked>
+              <div class="inner"><span class="ttl">Moderate</span><span class="sub">Standard portions (fits most events).</span></div>
+            </label>
+            <label class="card-opt">
+              <input type="radio" name="appetite" value="1.15" data-label="Generous">
+              <div class="inner"><span class="ttl">Generous</span><span class="sub">Heftier portions for bigger appetites.</span></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="step" id="s5" aria-label="Step 4: Item-specific inputs">
+          <div class="bgnum">4</div>
+          <p class="q">Dessert options</p>
+          <div class="row" style="max-width:640px">
+            <div>
+              <label>Item input A (optional)</label>
+              <input id="item-input-a" type="text" placeholder="e.g., flavor or pan size">
+            </div>
+            <div>
+              <label>Item input B (optional)</label>
+              <input id="item-input-b" type="text" placeholder="e.g., slice size or toppings">
+            </div>
+          </div>
+        </div>
+      </section>
+<section class="box" id="box-results">
+        <h3>Estimated servings</h3>
+        <div class="results-figure" id="result-number">0.0 servings</div>
+        <div class="summary" id="input-summary">Guests: 5/0/0 · Appetite: Moderate · Role: Only dessert</div>
+        <div class="note" style="margin-top:8px">The estimate includes a small built-in cushion. Additional rounding is usually not needed.</div>
+
+        
+          </section>
+<div class="two-col">
+  <section class="box" id="box-pricing">
+    <h3>Pricing (optional)</h3>
+    <div class="gutter">
+          <div class="bigicon" aria-hidden="true"><svg viewBox="0 0 96 96" aria-hidden="true"><path d="M48 8v80" stroke="#1f3a93" stroke-width="4" fill="none"/><path d="M64 24c0-8-8-14-20-14-10 0-18 4-20 10-2 6 4 12 18 15 20 5 26 10 26 18 0 10-10 18-24 18-12 0-21-5-23-12" stroke="#1f3a93" stroke-width="4" fill="none"/></svg>
+          
+  <div class="pricing-grid">
+            <div><label>Unit price</label><input id="price-unit" type="text" placeholder="0.00"></div>
+  <div class="price-results">
+            <div class="pill" id="price-total">Total: --</div>
+</div>
   </section>
-
-  <!-- STEP 2: GUESTS -->
-  <section class="box" aria-label="Step 2 Guests">
-    <div class="step">2</div>
-    <h3 class="label">Guests</h3>
-    <div class="row">
-      <div>
-        <div class="label">Adults</div>
-        <input id="adults" type="number" min="0" value="5">
-      </div>
-      <div>
-        <div class="label">Teens</div>
-        <input id="teens" type="number" min="0" value="0">
-      </div>
-      <div>
-        <div class="label">Children</div>
-        <input id="children" type="number" min="0" value="0">
-      </div>
-    </div>
-    <div class="muted">Presets:
-      <a href="#" class="preset" data-n="10">10</a> ·
-      <a href="#" class="preset" data-n="25">25</a> ·
-      <a href="#" class="preset" data-n="50">50</a> ·
-      <a href="#" class="preset" data-n="100">100</a>
-    </div>
-  </section>
-
-  <!-- STEP 3: APPETITE -->
-  <section class="box" aria-label="Step 3 Appetite">
-    <div class="step">3</div>
-    <h3 class="label">How generous would you like the portions to be?</h3>
-    <label class="radio-card">
-      <input type="radio" name="appetite" value="0.90" data-label="Light"> Light
-      <div class="muted">Smaller portions for lighter appetites.</div>
-    </label>
-    <label class="radio-card">
-      <input type="radio" name="appetite" value="1.00" data-label="Moderate" checked> Moderate
-      <div class="muted">Standard portions (fits most events).</div>
-    </label>
-    <label class="radio-card">
-      <input type="radio" name="appetite" value="1.15" data-label="Generous"> Generous
-      <div class="muted">Heftier portions for bigger appetites.</div>
-    </label>
-  </section>
-
-  <!-- STEP 4: DESSERT OPTIONS (generic; brownies specifics can be wired later) -->
-  <section class="box" aria-label="Step 4 Dessert options">
-    <div class="step">4</div>
-    <h3 style="text-align:center">Dessert options</h3>
-    <div class="row">
-      <div>
-        <div class="label">Toppings bar</div>
-        <select id="toppings">
-          <option value="no" selected>No</option>
-          <option value="yes">Yes (+10%)</option>
-        </select>
-      </div>
-      <div>
-        <div class="label">Item input A (optional)</div>
-        <input id="item-input-a" placeholder="e.g., flavor or pan size">
-      </div>
-      <div>
-        <div class="label">Item input B (optional)</div>
-        <input id="item-input-b" placeholder="e.g., slice size or toppings">
-      </div>
-    </div>
-  </section>
-
-  <!-- RESULTS -->
-  <section class="box" id="box-results" aria-label="Results">
-    <h3>Estimated servings</h3>
-    <div class="results-figure" id="result-number">0.0 servings</div>
-    <div class="summary" id="input-summary">Guests: 5/0/0 · Appetite: Moderate · Role: Only dessert</div>
-    <div class="note" style="margin-top:8px">The estimate includes a small built-in cushion. Additional rounding is usually not needed.</div>
+  <section class="box" id="box-finder">
+    <h3>Finder</h3>
+    <div class="gutter">
+          <div class="bigicon" aria-hidden="true">
+            <svg viewBox="0 0 96 96">
+              <ellipse cx="48" cy="82" rx="16" ry="6" fill="#e6ecff"/>
+              <path d="M48 80s22-19 22-38a22 22 0 1 0-44 0c0 19 22 38 22 38Z" fill="#e9f0ff" stroke="#1f3a93" stroke-width="2"/>
+              <circle cx="48" cy="42" r="8" fill="#ffffff" stroke="#1f3a93" stroke-width="2"/>
+              <rect x="42" y="38" width="12" height="10" rx="1" fill="#ffd54d" stroke="#1f3a93" stroke-width="1.5"/>
+              <rect x="42" y="38" width="12" height="4" fill="#ff6b6b"/>
+              <rect x="45" y="42" width="6" height="6" fill="#74c0fc"/>
+            </svg>
+          
+  <div class="finder-chips">
+              <a class="chip primary" href="https://www.google.com/maps/search/dessert+near+me" target="_blank" rel="noopener">Find dessert near me</a>
+              <a class="chip" href="#" target="_blank" rel="noopener">Bakeries</a>
+              <a class="chip" href="#" target="_blank" rel="noopener">Grocery stores</a>
+            </div>
+</div>
   </section>
 </div>
+</div><footer class="disclaimer">
+      Use for planning only. DinnerMath provides general portion and cost estimates based on USDA FoodData Central guidelines, catering standards, and typical averages. Results depend on the information you enter. DinnerMath is not responsible for purchasing decisions, food safety, or outcomes based on these estimates. (c) 2025 DinnerMath. All rights reserved.
+    </footer>
+  </div>
 
 <script>
-/* ===== bootstrap: load JSON by slug ===== */
-function getSlugFromLocation(){
-  const u = new URL(window.location.href);
-  const s = u.searchParams.get('slug');
-  if (s) return s;
-  const m = u.pathname.match(/(?:\/|^)([^\/]+)\.html$/);
-  return m ? m[1] : 'cheesecake';
-}
-async function bootstrap(){
-  const slug = getSlugFromLocation();
-  const res = await fetch('../../data/' + slug + '.json');
-  if(!res.ok){ console.error('Failed to load JSON for', slug); return; }
-  const data = await res.json();
-  window.DM_DATA = data;
+  function num(v){ return Number(String(v).replace(/[^0-9.]/g,'')||0); }
 
-  // Title from display_name or slug
-  const h1 = document.querySelector('h1');
-  if(h1){
-    const nice = (data.display_name || slug.replace(/-/g,' '));
-    h1.textContent = nice + ' Quantity Calculator';
-    document.title = h1.textContent;
-  }
-  updateAll();
-}
-
-/* ===== helpers ===== */
-function dmNum(s){
-  if(!s) return 0;
-  s = String(s).trim();
-  if(s.includes('/')){
-    const [a,b] = s.split('/').map(Number);
-    if(isFinite(a)&&isFinite(b)&&b) return a/b;
-  }
-  const n = Number(s.replace(/[^0-9.]/g,''));
-  return isFinite(n)? n : 0;
-}
-function dmParseBaseline(str){
-  const m = (str||'').trim().match(/^([\d.\/]+)\s*(.+)?$/);
-  return { num: m ? dmNum(m[1]) : 0, unit: (m && m[2]) ? m[2].trim() : 'servings' };
-}
-function dmRoundDessert(n){
-  n = Number(n)||0;
-  const base = Math.floor(n), rem = n-base;
-  if(n <= 8) return Math.ceil(n);
-  if(rem >= 0.8) return base+1;
-  return Math.round(n);
-}
-
-/* ===== constants ===== */
-const DM_AE = { adult:1.00, teen:0.75, child:0.50 };
-
-/* ===== main calc used by render ===== */
-function calcServings(){
-  const base = dmParseBaseline(window.DM_DATA?.adult_cooked_baseline || '1 piece');
-  const A = dmNum(document.getElementById('adults')?.value);
-  const T = dmNum(document.getElementById('teens')?.value);
-  const C = dmNum(document.getElementById('children')?.value);
-  const AE = A*DM_AE.adult + T*DM_AE.teen + C*DM_AE.child;
-
-  const role = parseFloat(document.querySelector('input[name="role"]:checked')?.value || '1.00');
-  const appetite = parseFloat(document.querySelector('input[name="appetite"]:checked')?.value || '1.00');
-
-  let total = AE * base.num * role * appetite;
-  if(document.getElementById('toppings')?.value === 'yes') total *= 1.10;
-
-  return { value: dmRoundDessert(total), unit: base.unit||'servings' };
-}
-
-/* ===== render ===== */
-function updateSummary(){
-  const A = dmNum(document.getElementById('adults')?.value);
-  const T = dmNum(document.getElementById('teens')?.value);
-  const C = dmNum(document.getElementById('children')?.value);
-  const ap = document.querySelector('input[name="appetite"]:checked')?.dataset?.label || 'Moderate';
-  const rl = document.querySelector('input[name="role"]:checked')?.dataset?.label || 'Only dessert';
-  const s = document.getElementById('input-summary');
-  if(s) s.textContent = 'Guests: '+[A||0,T||0,C||0].join('/')+' · Appetite: '+ap+' · Role: '+rl;
-}
-function renderResults(){
-  const r = calcServings();
-  const el = document.getElementById('result-number');
-  if(el) el.textContent = (Math.round(r.value*10)/10).toFixed(1) + ' ' + r.unit;
-  updateSummary();
-}
-function updateAll(){ renderResults(); }
-
-/* ===== UX: presets + select-all ===== */
-document.addEventListener('click', function(e){
-  const a = e.target.closest('a.preset'); if(!a) return;
-  e.preventDefault();
-  const n = Number(a.dataset.n||0);
-  const A=document.getElementById('adults'),T=document.getElementById('teens'),C=document.getElementById('children');
-  if(A&&T&&C){ A.value=n; T.value=0; C.value=0; updateAll(); A.focus(); A.select(); }
-});
-['adults','teens','children'].forEach(id=>{
-  const el=document.getElementById(id);
-  if(!el) return;
-  el.addEventListener('focus', function(){ this.select(); });
-  el.addEventListener('click', function(){ this.select(); });
-});
-
-/* ===== live updates ===== */
-['input','change'].forEach(evt=>{
-  ['adults','teens','children','item-input-a','item-input-b','toppings'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.addEventListener(evt, updateAll);
+  ['adults','teens','children'].forEach(function(id){
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('focus', function(){ this.select(); });
+    el.addEventListener('click', function(){ this.select(); });
   });
-  document.querySelectorAll('input[name="appetite"], input[name="role"]').forEach(el=>el.addEventListener(evt, updateAll));
-});
+  function applyPreset(n){
+    const A=document.getElementById('adults'),T=document.getElementById('teens'),C=document.getElementById('children');
+    if(!A||!T||!C) return; A.value=n; T.value=0; C.value=0; updateAll(); A.focus(); A.select();
+  }
+  function resetAll(){
+    const A=document.getElementById('adults'),T=document.getElementById('teens'),C=document.getElementById('children');
+    if(A){A.value=5} if(T){T.value=0} if(C){C.value=0}
+    document.querySelector('input[name="appetite"][value="1.00"]').checked=true;
+    document.querySelector('input[name="role"][value="1.00"]').checked=true;
+    updateAll(); if(A){A.focus();A.select();}
+  }
+  function presetHandler(e){
+    const a=e.target.closest&&e.target.closest('a.preset'); if(!a) return;
+    e.preventDefault();
+    if(a.hasAttribute('data-reset')){ resetAll(); return; }
+    applyPreset(Number(a.getAttribute('data-total')||0));
+  }
+  document.addEventListener('click', presetHandler);
+  document.addEventListener('keydown', function(e){
+    const a=e.target.closest&&e.target.closest('a.preset'); if(!a) return;
+    if(e.key==='Enter'||e.key===' '){ e.preventDefault(); if(a.hasAttribute('data-reset')){resetAll();} else {applyPreset(Number(a.getAttribute('data-total')||0));} }
+  });
 
-/* ===== go ===== */
-document.addEventListener('DOMContentLoaded', bootstrap);
+  function calcServings(){
+    const A=num(document.getElementById('adults').value);
+    const T=num(document.getElementById('teens').value);
+    const C=num(document.getElementById('children').value);
+    const role=parseFloat(document.querySelector('input[name="role"]:checked')?.value || '1.00');
+    const appetite=parseFloat(document.querySelector('input[name="appetite"]:checked')?.value || '1.00');
+    const ae=A + 0.8*T + 0.6*C; const baseline=1.0;
+    return ae * baseline * role * appetite;
+  }
+
+  function updateSummary(){
+    const apInput=document.querySelector('input[name="appetite"]:checked');
+    const rlInput=document.querySelector('input[name="role"]:checked');
+    const A=num(document.getElementById('adults').value);
+    const T=num(document.getElementById('teens').value);
+    const C=num(document.getElementById('children').value);
+    const appLabel=apInput?.dataset.label || 'Moderate';
+    const roleLabel=rlInput?.dataset.label || 'Only dessert';
+    const text='Guests: '+A+'/'+T+'/'+C+' · Appetite: '+appLabel+' · Role: '+roleLabel;
+    document.getElementById('input-summary').textContent=text;
+  }
+
+  function updatePricing(servings){
+    const unit=num(document.getElementById('price-unit').value);
+    const tax=num(document.getElementById('price-tax').value);
+    const fee=num(document.getElementById('price-fee').value);
+    const base=unit * servings;
+    const total=base * (1 + tax/100) + fee;
+    const people=num(document.getElementById('adults').value) + num(document.getElementById('teens').value) + num(document.getElementById('children').value);
+    const per=people>0 ? total/people : 0;
+    document.getElementById('price-total').textContent='Total: $'+(Math.round(total*100)/100).toFixed(2);
+    document.getElementById('price-per').textContent='Per person: $'+(Math.round(per*100)/100).toFixed(2);
+  }
+
+  function renderResults(){
+    const servings=calcServings();
+    document.getElementById('result-number').textContent=(Math.round(servings*10)/10).toFixed(1)+' servings';
+    updateSummary();
+    updatePricing(servings);
+  }
+
+  function updateAll(){ renderResults(); }
+
+  ['input','change'].forEach(evt => {
+    ['adults','teens','children','price-unit','price-tax','price-fee','item-input-a','item-input-b'].forEach(id => {
+      const el=document.getElementById(id); if(el) el.addEventListener(evt, updateAll);
+    });
+    document.querySelectorAll('input[name="appetite"], input[name="role"]').forEach(el => el.addEventListener(evt, updateAll));
+  });
+  document.addEventListener('DOMContentLoaded', updateAll);
 </script>
 </body>
 </html>
-
