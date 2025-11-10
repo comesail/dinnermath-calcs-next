@@ -429,7 +429,46 @@
     document.head.appendChild(s);
   }
   document.addEventListener('DOMContentLoaded', loadRulesAndStart);
+  <script>
+  function applyUiAndCopy(){
+    // COPY: h1, lede, results title, summary note
+    if (window.DM_COPY){
+      const { h1, lede2, results } = window.DM_COPY;
+      if (h1)   { const el=document.querySelector('h1'); if(el) el.textContent=h1; }
+      if (lede2){ const el=document.querySelector('.lede'); if(el) el.textContent=lede2; }
+      if (results?.label){
+        const el=document.querySelector('#box-results h3'); if(el) el.textContent=results.label;
+      }
+      if (results?.second_line){ /* summary already shows guests/appetite/role; leave as-is for now */ }
+      if (results?.note){
+        const el=document.querySelector('#box-results .note'); if(el) el.textContent=results.note;
+      }
+    }
+
+    // UI: hide Step 4 or render item-specific controls; pricing unit label
+    if (window.DM_UI){
+      const step4 = document.getElementById('s5');
+      if (window.DM_UI.hideItemInputs && step4) step4.style.display = 'none';
+
+      // Optional unit label beside pricing (keeps your current inputs)
+      if (window.DM_UI.pricingUnitLabel){
+        const out = document.getElementById('price-note');
+        if (out) out.textContent = 'Pricing is optional · ' + window.DM_UI.pricingUnitLabel;
+      }
+    }
+  }
+
+  // Run after rules load (and on fallback)
+  const _oldStart = loadRulesAndStart;
+  loadRulesAndStart = function(){
+    _oldStart();
+    // Try again shortly, in case rules finished just after first render
+    setTimeout(applyUiAndCopy, 60);
+  };
+  // If rules weren’t found, still try once after DOM ready
+  document.addEventListener('DOMContentLoaded', () => setTimeout(applyUiAndCopy, 120));
 </script>
+
 </body>
 </html>
 
