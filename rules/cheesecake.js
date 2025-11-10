@@ -46,5 +46,3 @@
     }
   };
 })();   // <-- Leave this line exactly where it is!
-
-})();
