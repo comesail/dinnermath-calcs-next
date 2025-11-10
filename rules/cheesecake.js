@@ -45,4 +45,21 @@
       note: 'The estimate includes a small built-in cushion. Additional rounding is usually not needed.'
     }
   };
+  // --- Force result label & optional secondary/extra lines (no skin edit needed)
+window.DM_RESULT_LABEL = 'Estimated number of slices to buy';    // replaces "Estimated servings"
+window.DM_SECONDARY    = '';                                      // e.g., 'About 1 cake total.' (optional)
+window.DM_EXTRA        = '';                                      // another optional clarifier
+
+// --- Show Step 4 again (you can flip this later per item)
+if (window.DM_UI) window.DM_UI.hideItemInputs = false;
+
+// --- Make sure the calculator returns the unit you want
+// If your DM_COMPUTE already exists, just ensure it returns { value, unit: 'slice' }
+window.DM_COMPUTE = window.DM_COMPUTE || function (inp) {
+  const AE = inp.adults + 0.75*inp.teens + 0.50*inp.children;
+  const baseline = 1;               // 1 slice baseline for desserts
+  const value = AE * baseline * inp.role * inp.appetite;
+  return { value, unit: 'slice' };
+};
+
 })();   // <-- Leave this line exactly where it is!
