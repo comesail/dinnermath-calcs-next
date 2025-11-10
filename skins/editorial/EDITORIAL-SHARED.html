@@ -56,8 +56,6 @@
   .summary{text-align:center;margin:0 0 8px 0;color:#2c2c2c}
   .note{font-size:13px;color:#5c5c5c;text-align:center}
 
-  .divider{height:1px;background:#EEE;margin:14px 0}
-
   .gutter{position:relative;padding-left:24px;min-height:96px}
   .gutter .bigicon{position:absolute;left:-6px;top:50%;transform:translateY(-50%);opacity:.12}
   .gutter.pricing .bigicon{left:-30px}
@@ -74,7 +72,7 @@
   .finder-chips{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
   .chip{display:inline-flex;align-items:center;gap:8px;border:1px solid #CFCFCF;padding:12px 18px;text-decoration:none;color:#111;background:#fff;border-radius:9999px}
   .chip:hover{border-color:#BDBDBD}
-  .chip.primary{border:2px solid (--royal); color:var(--royal); font-weight:600}
+  .chip.primary{border:2px solid var(--royal); color:var(--royal); font-weight:600}
 
   footer.disclaimer{margin:22px 0 8px 0;text-align:center;font-size:12px;color:#6b6b6b;line-height:1.6}
 </style>
@@ -222,10 +220,9 @@
 <script>
   function num(v){ return Number(String(v).replace(/[^0-9.]/g,'')||0); }
 
-  // select-all behavior on number inputs
+  // select-all on numeric inputs
   ['adults','teens','children'].forEach(function(id){
-    const el=document.getElementById(id);
-    if(!el) return;
+    const el=document.getElementById(id); if(!el) return;
     el.addEventListener('focus', function(){ this.select(); });
     el.addEventListener('click', function(){ this.select(); });
   });
@@ -254,222 +251,162 @@
     if(e.key==='Enter'||e.key===' '){ e.preventDefault(); if(a.hasAttribute('data-reset')){resetAll();} else {applyPreset(Number(a.getAttribute('data-total')||0));} }
   });
 
-  // --- math bridge ---
+  // compute via rules if present, else simple fallback
   function calcServings(){
-    // If a per-calculator rules file loaded, use it
     if (typeof window.DM_COMPUTE === 'function') {
       const A = Number(document.getElementById('adults')?.value || 0);
       const T = Number(document.getElementById('teens')?.value || 0);
       const C = Number(document.getElementById('children')?.value || 0);
       const role = parseFloat(document.querySelector('input[name="role"]:checked')?.value || '1.00');
       const appetite = parseFloat(document.querySelector('input[name="appetite"]:checked')?.value || '1.00');
-
-      const out = window.DM_COMPUTE({
-        adults: A, teens: T, children: C,
-        role, appetite,
-        toppings: document.getElementById('toppings')?.value === 'yes'
-      });
-
-      // out can be { value, unit, result_label, secondary_text, extra_text, lede_detail, schema }
+      const out = window.DM_COMPUTE({ adults:A, teens:T, children:C, role, appetite });
       window.__DM_LAST = out || {};
-      return Number(out?.value || 0); // renderer expects a number
+      return Number(out?.value || 0);
     }
-
-    // Fallback only if no rules file
-    const A = Number(document.getElementById('adults')?.value || 0);
-    const T = Number(document.getElementById('teens')?.value || 0);
-    const C = Number(document.getElementById('children')?.value || 0);
-    const role = parseFloat(document.querySelector('input[name="role"]:checked')?.value || '1.00');
-    const appetite = parseFloat(document.querySelector('input[name="appetite"]:checked')?.value || '1.00');
-    const ae = A + 0.75*T + 0.50*C; // desserts AE
+    const A=Number(document.getElementById('adults')?.value||0);
+    const T=Number(document.getElementById('teens')?.value||0);
+    const C=Number(document.getElementById('children')?.value||0);
+    const role=parseFloat(document.querySelector('input[name="role"]:checked')?.value||'1.00');
+    const appetite=parseFloat(document.querySelector('input[name="appetite"]:checked')?.value||'1.00');
+    const ae = A + 0.75*T + 0.50*C;
     const baseline = 1.0;
-    window.__DM_LAST = { value: ae * baseline * role * appetite, unit: 'servings' };
+    window.__DM_LAST = { value: ae*baseline*role*appetite, unit: 'servings' };
     return window.__DM_LAST.value;
   }
 
-  // summary line
   function updateSummary(){
-    const apInput=document.querySelector('input[name="appetite"]:checked');
-    const rlInput=document.querySelector('input[name="role"]:checked');
+    const ap=document.querySelector('input[name="appetite"]:checked');
+    const rl=document.querySelector('input[name="role"]:checked');
     const A=num(document.getElementById('adults').value);
     const T=num(document.getElementById('teens').value);
     const C=num(document.getElementById('children').value);
-    const appLabel=apInput?.dataset.label || 'Moderate';
-    const roleLabel=rlInput?.dataset.label || 'Only dessert';
-    const text='Guests: '+A+'/'+T+'/'+C+' · Appetite: '+appLabel+' · Role: '+roleLabel;
-    const el=document.getElementById('input-summary'); if(el) el.textContent=text;
+    const appLabel=ap?.dataset.label || 'Moderate';
+    const roleLabel=rl?.dataset.label || 'Only dessert';
+    const el=document.getElementById('input-summary'); if(el) el.textContent='Guests: '+A+'/'+T+'/'+C+' · Appetite: '+appLabel+' · Role: '+roleLabel;
   }
 
-  // pricing: safe if controls are missing
   function updatePricing(servings){
-    const unitEl = document.getElementById('price-unit');
-    const taxEl  = document.getElementById('price-tax');
-    const feeEl  = document.getElementById('price-fee');
-    if (!unitEl && !taxEl && !feeEl) return;
-
-    const unit = unitEl ? Number(unitEl.value || 0) : 0;
-    const tax  = taxEl  ? Number(taxEl.value  || 0) : 0;
-    const fee  = feeEl  ? Number(feeEl.value  || 0) : 0;
-
-    const subtotal = (Number(servings) || 0) * unit;
-    const total = subtotal * (1 + tax/100) + fee;
-
-    const out = document.getElementById('price-total');
-    if (out) out.textContent = total.toFixed(2);
+    const unitEl=document.getElementById('price-unit');
+    const taxEl=document.getElementById('price-tax');
+    const feeEl=document.getElementById('price-fee');
+    if(!unitEl && !taxEl && !feeEl) return;
+    const unit=unitEl?Number(unitEl.value||0):0;
+    const tax=taxEl?Number(taxEl.value||0):0;
+    const fee=feeEl?Number(feeEl.value||0):0;
+    const subtotal=(Number(servings)||0)*unit;
+    const total=subtotal*(1+tax/100)+fee;
+    const out=document.getElementById('price-total'); if(out) out.textContent=total.toFixed(2);
   }
 
-  // helpers
-  function titleCaseSlug(slug){
-    return slug.split('-').map(s=>s.charAt(0).toUpperCase()+s.slice(1)).join(' ');
-  }
+  function titleCaseSlug(slug){ return slug.split('-').map(s=>s.charAt(0).toUpperCase()+s.slice(1)).join(' '); }
   function fmtPrimary(val, unit){
-    const n = Number(val);
-    const isInt = Math.abs(n - Math.round(n)) < 0.0001;
-    const v = isInt ? String(Math.round(n)) : (Math.round(n*10)/10).toFixed(1);
+    const n=Number(val);
+    const isInt=Math.abs(n-Math.round(n))<0.0001;
+    const v=isInt?String(Math.round(n)):(Math.round(n*10)/10).toFixed(1);
     return unit ? (v+' '+unit) : v+' servings';
   }
 
-  // render + driver
   function renderResults(){
     const servings = calcServings();
     const outObj = window.__DM_LAST || {};
 
-    // Label (from rules if provided)
-    const labelEl = document.getElementById('result-label');
-    const labelTxt = outObj.result_label || window.DM_RESULT_LABEL || 'Estimated servings';
-    if (labelEl) labelEl.textContent = labelTxt;
+    const labelEl=document.getElementById('result-label');
+    labelEl.textContent = outObj.result_label || window.DM_RESULT_LABEL || 'Estimated servings';
 
-    // Primary number
-    const primaryEl = document.getElementById('result-number');
+    const primaryEl=document.getElementById('result-number');
     const unit = outObj.unit || 'servings';
-    if (primaryEl) primaryEl.textContent = fmtPrimary(servings, unit);
+    primaryEl.textContent = fmtPrimary(servings, unit);
 
-    // Secondary line (optional)
-    const secEl = document.getElementById('result-secondary');
-    const secTxt = outObj.secondary_text || window.DM_SECONDARY || '';
-    if (secEl){
-      if (secTxt){ secEl.style.display='block'; secEl.textContent = secTxt; }
-      else { secEl.style.display='none'; secEl.textContent=''; }
-    }
+    const secEl=document.getElementById('result-secondary');
+    const secTxt=outObj.secondary_text||window.DM_SECONDARY||'';
+    if(secTxt){ secEl.style.display='block'; secEl.textContent=secTxt; } else { secEl.style.display='none'; secEl.textContent=''; }
 
-    // Extra line (optional, ASCII only)
-    const extraEl = document.getElementById('result-extra');
-    const extraTxt = outObj.extra_text || window.DM_EXTRA || '';
-    if (extraEl){
-      if (extraTxt){ extraEl.style.display='block'; extraEl.textContent = extraTxt; }
-      else { extraEl.style.display='none'; extraEl.textContent=''; }
-    }
+    const extraEl=document.getElementById('result-extra');
+    const extraTxt=outObj.extra_text||window.DM_EXTRA||'';
+    if(extraTxt){ extraEl.style.display='block'; extraEl.textContent=extraTxt; } else { extraEl.style.display='none'; extraEl.textContent=''; }
 
-    if (typeof updatePricing === 'function') { try { updatePricing(servings); } catch(e) { console.warn('Pricing skipped:', e); } }
-    if (typeof updateSummary === 'function') { try { updateSummary(); } catch(e) {} }
+    try{ updatePricing(servings); }catch(e){}
+    try{ updateSummary(); }catch(e){}
   }
   function updateAll(){ renderResults(); }
 
   // wire inputs
-  ['input','change'].forEach(evt => {
-    ['adults','teens','children','price-unit','price-tax','price-fee','item-input-a','item-input-b'].forEach(id => {
+  ['input','change'].forEach(evt=>{
+    ['adults','teens','children','price-unit','price-tax','price-fee','item-input-a','item-input-b'].forEach(id=>{
       const el=document.getElementById(id); if(el) el.addEventListener(evt, updateAll);
     });
-    document.querySelectorAll('input[name="appetite"], input[name="role"]').forEach(el => el.addEventListener(evt, updateAll));
+    document.querySelectorAll('input[name="appetite"], input[name="role"]').forEach(el=>el.addEventListener(evt, updateAll));
   });
 
-  // slug + rules loader (with cache-buster) + lede override + schema
-  function getSlugFromLocation(){
-    const u = new URL(window.location.href);
-    const s = u.searchParams.get('slug');
-    if (s) return s;
-    const m = u.pathname.match(/(?:\/|^)([^\/]+)\.html$/);
-    return m ? m[1] : 'cheesecake';
-  }
-  function injectSchema(nameTxt, descTxt){
-    try{
-      const schema = {
-        "@context":"https://schema.org",
-        "@type":"WebApplication",
-        "name": nameTxt,
-        "applicationCategory":"FoodCalculator",
-        "operatingSystem":"All",
-        "description": descTxt
-      };
-      const tag = document.createElement('script');
-      tag.type = 'application/ld+json';
-      tag.text = JSON.stringify(schema);
-      document.head.appendChild(tag);
-    }catch(e){ /* silent */ }
-  }
-  function loadRulesAndStart(){
-    const slug = getSlugFromLocation();
-
-    const h1 = document.querySelector('h1');
-    if (h1) h1.textContent = titleCaseSlug(slug) + ' Quantity Calculator';
-
-    const s = document.createElement('script');
-    s.src = '../../rules/' + slug + '.js?v=' + Date.now(); // cache-buster
-    s.onload = () => {
-      console.log('RULES LOADED:', slug);
-
-      // Lede second sentence (optional)
-      const ledeEl = document.querySelector('.lede');
-      const ledeDetail = (window.DM_LEDE_DETAIL) || (window.__DM_LAST && window.__DM_LAST.lede_detail);
-      if (ledeEl && ledeDetail){
-        // ensure ASCII-only
-        const detail = String(ledeDetail).replace(/[^\x20-\x7E]/g,'');
-        ledeEl.textContent = ledeEl.textContent.replace(/\s*$/, '') + ' ' + detail;
-      }
-
-      // Schema (optional values from rules)
-      const computedName = titleCaseSlug(slug) + ' Quantity Calculator';
-      const schemaName = (window.DM_SCHEMA && window.DM_SCHEMA.name) || computedName;
-      const schemaDesc = (window.DM_SCHEMA && window.DM_SCHEMA.description) || 'Interactive calculator to estimate amounts for this item based on guests, appetite, and role.';
-      injectSchema(schemaName, schemaDesc);
-
-      updateAll();
-    };
-    s.onerror = () => { console.error('Missing rules for', slug); updateAll(); };
-    document.head.appendChild(s);
-  }
-  document.addEventListener('DOMContentLoaded', loadRulesAndStart);
-  <script>
+  // apply per-calculator UI and copy (from rules)
   function applyUiAndCopy(){
-    // COPY: h1, lede, results title, summary note
     if (window.DM_COPY){
       const { h1, lede2, results } = window.DM_COPY;
-      if (h1)   { const el=document.querySelector('h1'); if(el) el.textContent=h1; }
+      if (h1){ const el=document.querySelector('h1'); if(el) el.textContent=h1; }
       if (lede2){ const el=document.querySelector('.lede'); if(el) el.textContent=lede2; }
-      if (results?.label){
-        const el=document.querySelector('#box-results h3'); if(el) el.textContent=results.label;
-      }
-      if (results?.second_line){ /* summary already shows guests/appetite/role; leave as-is for now */ }
-      if (results?.note){
-        const el=document.querySelector('#box-results .note'); if(el) el.textContent=results.note;
-      }
+      if (results && results.label){ const el=document.querySelector('#box-results h3'); if(el) el.textContent=results.label; }
+      if (results && results.note){ const el=document.querySelector('#box-results .note'); if(el) el.textContent=results.note; }
     }
-
-    // UI: hide Step 4 or render item-specific controls; pricing unit label
     if (window.DM_UI){
-      const step4 = document.getElementById('s5');
-      if (window.DM_UI.hideItemInputs && step4) step4.style.display = 'none';
-
-      // Optional unit label beside pricing (keeps your current inputs)
+      const step4=document.getElementById('s5');
+      if (window.DM_UI.hideItemInputs && step4) step4.style.display='none';
       if (window.DM_UI.pricingUnitLabel){
-        const out = document.getElementById('price-note');
-        if (out) out.textContent = 'Pricing is optional · ' + window.DM_UI.pricingUnitLabel;
+        const out=document.getElementById('price-note'); if(out) out.textContent='Pricing is optional · '+window.DM_UI.pricingUnitLabel;
       }
     }
   }
 
-  // Run after rules load (and on fallback)
-  const _oldStart = loadRulesAndStart;
-  loadRulesAndStart = function(){
-    _oldStart();
-    // Try again shortly, in case rules finished just after first render
-    setTimeout(applyUiAndCopy, 60);
-  };
-  // If rules weren’t found, still try once after DOM ready
-  document.addEventListener('DOMContentLoaded', () => setTimeout(applyUiAndCopy, 120));
-</script>
+  // schema helper
+  function injectSchema(nameTxt, descTxt){
+    try{
+      const schema={ "@context":"https://schema.org", "@type":"WebApplication",
+        "name":nameTxt, "applicationCategory":"FoodCalculator", "operatingSystem":"All", "description":descTxt };
+      const tag=document.createElement('script'); tag.type='application/ld+json'; tag.text=JSON.stringify(schema); document.head.appendChild(tag);
+    }catch(e){}
+  }
 
+  // slug + rules loader
+  function getSlugFromLocation(){
+    const u=new URL(window.location.href);
+    const s=u.searchParams.get('slug'); if(s) return s;
+    const m=u.pathname.match(/(?:\/|^)([^\/]+)\.html$/); return m?m[1]:'cheesecake';
+  }
+
+  function loadRulesAndStart(){
+    const slug=getSlugFromLocation();
+    const h1El=document.querySelector('h1');
+    if(h1El) h1El.textContent=titleCaseSlug(slug)+' Quantity Calculator';
+
+    const s=document.createElement('script');
+    s.src='../../rules/'+slug+'.js?v='+Date.now();
+    s.onload=function(){
+      // Optional lede detail from rules
+      const ledeEl=document.querySelector('.lede');
+      const ledeDetail=(window.DM_LEDE_DETAIL)||(window.__DM_LAST&&window.__DM_LAST.lede_detail);
+      if(ledeEl && ledeDetail){
+        const detail=String(ledeDetail).replace(/[^\x20-\x7E]/g,'');
+        ledeEl.textContent=ledeEl.textContent.replace(/\s*$/,'')+' '+detail;
+      }
+      // Schema
+      const computedName=titleCaseSlug(slug)+' Quantity Calculator';
+      const schemaName=(window.DM_SCHEMA&&window.DM_SCHEMA.name)||computedName;
+      const schemaDesc=(window.DM_SCHEMA&&window.DM_SCHEMA.description)||'Interactive calculator to estimate amounts based on guests, appetite, and role.';
+      injectSchema(schemaName, schemaDesc);
+
+      applyUiAndCopy();
+      updateAll();
+    };
+    s.onerror=function(){ console.error('Missing rules for', slug); updateAll(); };
+    document.head.appendChild(s);
+  }
+
+  // boot
+  document.addEventListener('DOMContentLoaded', function(){
+    loadRulesAndStart();
+    // safety retries in case rules load right after first render
+    setTimeout(applyUiAndCopy, 80);
+    setTimeout(updateAll, 120);
+  });
+</script>
 </body>
 </html>
-
-
